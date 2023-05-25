@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace ZombieSlayer
 {
@@ -63,11 +64,15 @@ namespace ZombieSlayer
         bool die = false;
         bool DR = false;
         bool Dl = false;
+        bool newZ = false;
 
-        Zombie sama7;
+        Random r = new Random();
+
+        Zombie[] sama7 = new Zombie[10];
         int counter = 0;
         int health_counter = 0;
         int i;
+        int j = 0;
         public Form1()
         {
             InitializeComponent();
@@ -211,9 +216,11 @@ namespace ZombieSlayer
                     }
                 }
                 g.DrawImage(map[mapI + 1], map_x, map_y, map_w, map_h);
-                if (counter > 0 && sama7.state != 0)
+
+
+                if (counter > 0 && sama7[j].state != 0)
                 {
-                    sama7.draw(g, Z_x, Z_y, mage_w, mage_h);
+                    sama7[j].draw(g, Z_x, Z_y, mage_w, mage_h);
                     if (health_counter != health.Length - 1)
                         g.DrawImage(health[health_counter], screen_w / 100, screen_h / 100);
                 }
@@ -221,9 +228,9 @@ namespace ZombieSlayer
             }
             if (mage_die && (mage_die_counter != mage_die_L.Length) && (mage_die_counter != mage_die_R.Length))
             {
-                if (sama7.state == 0 && health_counter == health.Length - 1d)
+                if (sama7[j].state == 0 && health_counter == health.Length - 1)
                 {
-                    sama7.draw(g, Z_x, Z_y, mage_w, mage_h);
+                    sama7[j].draw(g, Z_x, Z_y, mage_w, mage_h);
                 }
                 if (DR && !Dl)
                 {
@@ -239,9 +246,9 @@ namespace ZombieSlayer
 
             if( (mage_die_counter == mage_die_L.Length) || (mage_die_counter == mage_die_R.Length))
             {
-                if (sama7.state == 0 && health_counter == health.Length - 1d)
+                if (sama7[j].state == 0 && health_counter == health.Length - 1)
                 {
-                    sama7.draw(g, Z_x, Z_y, mage_w, mage_h);
+                    sama7[j].draw(g, Z_x, Z_y, mage_w, mage_h);
                 }
                 if (DR && !Dl)
                 {
@@ -275,9 +282,12 @@ namespace ZombieSlayer
             mage_walk_counter = 0;
             mage_run_counter = 0;
             mage_step = ((screen_h / 100)+ (screen_w / 100))/2;
+            Z_x = r.Next(100, screen_w - 100); 
+            Z_y = r.Next(100, screen_h - 100); 
 
-            sama7 = new Zombie(Z_x, Z_y,mage_w, mage_h);
-
+            sama7[j] = new Zombie(Z_x, Z_y, mage_w, mage_h);
+            Console.WriteLine(j);
+            
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -300,10 +310,9 @@ namespace ZombieSlayer
                 {
                     if (!search)
                     {
-                        Z_x = screen_w / 6;
-                        Z_y = screen_h / 8;
-                        sama7.Setstate(3);
-                        if (sama7.GetSp() == sama7.GetLSp())
+                        
+                        sama7[j].Setstate(3);
+                        if (sama7[j].GetSp() == sama7[j].GetLSp())
                         {
                             search = true;
                         }
@@ -320,14 +329,18 @@ namespace ZombieSlayer
 
                             if ((Math.Abs(Z_x - mage_x) < (mage_w / 2)) && Math.Abs(Z_y - mage_y) < mage_h / 2)
                             {
-                                sama7.Setstate(6);
+                                sama7[j].Setstate(6);
+                                
+                                
                                 if (health_counter != health.Length-1)
-                                    health_counter = sama7.GetHits();
+                                    health_counter = sama7[j].GetHits();
+
+                                
                             }
                             else
                             {
                                 Z_x -= mage_step - 1;
-                                sama7.Setstate(1);
+                                sama7[j].Setstate(1);
                             }
 
 
@@ -339,15 +352,15 @@ namespace ZombieSlayer
 
                             if (Math.Abs(Z_x - mage_x) < mage_w / 2 && Math.Abs(Z_y - mage_y) < mage_h / 2)
                             {
-                                sama7.Setstate(5);
+                                sama7[j].Setstate(5);
                                 if (health_counter != health.Length-1)
-                                    health_counter = sama7.GetHits();
+                                    health_counter = sama7[j].GetHits();
 
                             }
                             else
                             {
                                 Z_x += mage_step - 1;
-                                sama7.Setstate(2);
+                                sama7[j].Setstate(2);
                             }
                         }
                         if (Z_y > mage_y)
@@ -368,11 +381,12 @@ namespace ZombieSlayer
                     if (Math.Abs(Z_x - mage_x) < mage_w / 2 && Math.Abs(Z_y - mage_y) < mage_h / 2 && sama7 != null)
                     {
                         die = true;
-                        sama7.Setstate(4);
-                        if (sama7.GetD() == sama7.GetLD())
+                        sama7[j].Setstate(4);
+                        newZ = true;
+                        if (sama7[j].GetD() == sama7[j].GetLD())
                         {
 
-                            sama7.Setstate(0);
+                            sama7[j].Setstate(0);
                         }
                     }
                     if (mage_atk_counter == mage_atk_R.Length)
@@ -480,7 +494,7 @@ namespace ZombieSlayer
                 }
                 if (health_counter == health.Length-1)
                 {
-                    sama7.Setstate(0);
+                    sama7[j].Setstate(0);
                     mage_die=true;
 
                 }
@@ -490,7 +504,18 @@ namespace ZombieSlayer
                 mage_die_counter++;
 
             }
-                Invalidate();
+            if (newZ == true)
+            {
+
+                
+                Z_x = r.Next(100, screen_w - 100); ;
+                Z_y = r.Next(100, screen_h - 100); ;
+
+                newZ = false;
+                die =false;
+                search=false;
+            }
+            Invalidate();
         }
         private void timer2_Tick(object sender, EventArgs e)
         {
@@ -582,6 +607,7 @@ namespace ZombieSlayer
             attack = true;
             Console.WriteLine(dir);
             Console.WriteLine("here");
+            
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
