@@ -36,11 +36,24 @@ namespace ZombieSlayer
         public const int DIE = 4;
         public const int HITTING_R = 5;
         public const int HITTING_L = 6;
-        public int state ;
+        public int state=0 ;
+        public bool ready = false;
+        public bool die = false;
+        public bool search = false;
+        Random random = new Random();
+
+        public int GetRX(int screen_w)
+        {
+            return random.Next(0, screen_w);        }
+        public int GetRY(int screen_h)
+        {
+            return random.Next(0, screen_h);
+        }
+
         public Zombie(int w, int h)
         {
             this.h = h;
-            this.w = w;
+            this.w = w; 
             img = img_standing;
 
         }
@@ -50,8 +63,26 @@ namespace ZombieSlayer
             this.w = w;
             this.x = x;
             this.y = y;
-          
+         
 
+
+
+        }
+        public void SetX(int x)
+        {
+            this.x = x;
+        }
+        public void SetY(int y)
+        {
+            this.y = y;
+        }
+        public int GetX()
+        {
+            return this.x;
+        }
+        public int GetY()
+        {
+            return this.y;
         }
         public void Setstate(int state)
         {
@@ -82,46 +113,22 @@ namespace ZombieSlayer
         {
             switch (state)
             {
-                case Zombie.STANDING://0
+                case Zombie.STANDING:
                     img = img_standing;
                     break;
-               
-                case Zombie.LEFT://1
-                    img = img_walking_l[counter_wl];
-                    counter_wl++;
-                    if (counter_wl == img_walking_l.Length)
-                        counter_wl = 0;
-                    break;
-                case Zombie.RIGHT://2
+                case Zombie.RIGHT:
                     img = img_walking_r[counter_wr];
                     counter_wr++;
                     if (counter_wr == img_walking_r.Length)
                         counter_wr = 0;
                     break;
-
-                case Zombie.SPAWN://3
-
-                    while (counter_sp != img_spawning.Length)
-                    {
-                        img = img_spawning[counter_sp];
-                        counter_sp++;
-                        counter_d = 0;
-                        break;
-                    }
-
+                case Zombie.LEFT:
+                    img = img_walking_l[counter_wl];
+                    counter_wl++;
+                    if (counter_wl == img_walking_l.Length)
+                        counter_wl = 0;
                     break;
-
-                case Zombie.DIE://4
-
-                    while (counter_d != img_die.Length)
-                    {
-                        img = img_die[counter_d];
-                        counter_d++;
-                        counter_sp = 0;
-                        break;
-                    }
-                    break;
-                case Zombie.HITTING_R://5
+                case Zombie.HITTING_R:
                     img = img_hitting_R[counter_hr];
                     counter_hr++;
                     if (counter_hr == img_hitting_R.Length)
@@ -130,7 +137,7 @@ namespace ZombieSlayer
                         counter_hr = 0;
                     }
                     break;
-                case Zombie.HITTING_L://6
+                case Zombie.HITTING_L:
                     img = img_hitting_L[counter_hl];
                     counter_hl++;
                     if (counter_hl == img_hitting_L.Length){
@@ -139,11 +146,30 @@ namespace ZombieSlayer
                     }
                     break;
 
-               
+                case Zombie.SPAWN:
+                    
+                    while(counter_sp != img_spawning.Length)
+                    {
+                        img = img_spawning[counter_sp];
+                        counter_sp++;
+                       
+                        break;
+                    }
+                  
+                    break;
+                case Zombie.DIE:
 
-                   
+                    while (counter_d != img_die.Length)
+                    {
+                        img = img_die[counter_d];
+                        counter_d++;
+
+                        break;
+                    }
+
+                    break;
             }
-            gfx.DrawImage(img, x, y, w, h);
+            gfx.DrawImage(img, this.x, this.y, w, h);
         }
 
     }
