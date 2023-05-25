@@ -50,6 +50,7 @@ namespace ZombieSlayer
         int Z_x;
         int Z_y;
         int health_counter_i = 0;
+        Random r = new Random(); 
         bool moveup = false;
         bool movedown = false;
         bool moveleft = false;
@@ -267,13 +268,15 @@ namespace ZombieSlayer
             mage_walk_counter = 0;
             mage_run_counter = 0;
             mage_step = ((screen_h / 100)+ (screen_w / 100))/2;
-           
+            
             zombie = new Zombie(Z_x, Z_y,mage_w, mage_h);
             zombies = new Zombie[5];
             for(i = 0; i < zombies.Length; i++)
             {
+                Z_x = r.Next(0, screen_w);
+                Z_y = r.Next(0, screen_h);
                 zombies[i]= new Zombie(Z_x, Z_y, mage_w, mage_h);
-               
+                
             }
             int[] Health = new int[5];
             
@@ -282,7 +285,8 @@ namespace ZombieSlayer
         }
 
         private void timer1_Tick(object sender, EventArgs e)
-        {   if (!mage_die)
+        {  
+            if (!mage_die)
             {
              
                 if (mage_x > ((12 / 15) * screen_w) && mage_y < 20 && mapI == 0)
@@ -310,12 +314,14 @@ namespace ZombieSlayer
                     {
                         if (!zombies[i].search)
                         {
-                            zombies[i].SetX(screen_w / 6);
-                            zombies[i].SetY(screen_h / 8);
+                            zombies[i].SetX(Z_x);
+                            zombies[i].SetY(Z_y);
                             zombies[i].Setstate(3);
                             if (zombies[i].GetSp() == zombies[i].GetLSp())
                             {
                                 zombies[i].search = true;
+                                Z_x = r.Next(0, screen_w);
+                                Z_y = r.Next(0, screen_h);
                             }
 
                         }
@@ -333,8 +339,9 @@ namespace ZombieSlayer
                                     zombies[i].Setstate(6);
                                     if (health_counter != health.Length - 1)
                                        health_counter_i = zombies[i].GetHits();
+                                    
                                     Health[i] = health_counter_i;
-                                   
+                                    health_counted = false;
                                 }
                                 else
                                 {
@@ -353,8 +360,9 @@ namespace ZombieSlayer
                                 {
                                     zombies[i].Setstate(5);
                                     health_counter_i = zombies[i].GetHits();
+                                    
                                     Health[i] = health_counter_i;
-
+                                    health_counted = false;
 
                                 }
                                 else
@@ -393,17 +401,18 @@ namespace ZombieSlayer
                     }
                 if (!health_counted)
                 {
+                    health_counter = 0;
                     for (i = 0; i < Health.Length; i++)
                     {
                         health_counter += Health[i];
                        
-                        if(i==Health.Length-1&&health_counter>0)
+                        if(i==Health.Length-1)
                             health_counted = true;
                     }
                    
                 }
-               
 
+                
 
                 if (attack == true)
                     {
@@ -534,14 +543,7 @@ namespace ZombieSlayer
             }
                 Invalidate();
         }
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            health_counted = false;
-            zombie_time_counter++;
-           
-            Invalidate();
-          
-        }
+        
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (!mage_die)
