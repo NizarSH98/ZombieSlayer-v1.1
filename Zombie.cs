@@ -17,10 +17,10 @@ namespace ZombieSlayer
         Image[] img_walking_r = { Image.FromFile("images\\Zombie\\movR1.png"), Image.FromFile("images\\Zombie\\movR1.png"), Image.FromFile("images\\Zombie\\movR1.png"), Image.FromFile("images\\Zombie\\movR2.png"), Image.FromFile("images\\Zombie\\movR2.png"), Image.FromFile("images\\Zombie\\movR2.png"), Image.FromFile("images\\Zombie\\movR3.png"), Image.FromFile("images\\Zombie\\movR3.png"), Image.FromFile("images\\Zombie\\movR3.png"), Image.FromFile("images\\Zombie\\movR4.png"), Image.FromFile("images\\Zombie\\movR4.png"), Image.FromFile("images\\Zombie\\movR4.png") };
         Image[] img_walking_l = { Image.FromFile("images\\Zombie\\movL1.png"), Image.FromFile("images\\Zombie\\movL1.png"), Image.FromFile("images\\Zombie\\movL1.png"), Image.FromFile("images\\Zombie\\movL2.png"), Image.FromFile("images\\Zombie\\movL2.png"), Image.FromFile("images\\Zombie\\movL2.png"), Image.FromFile("images\\Zombie\\movL3.png"), Image.FromFile("images\\Zombie\\movL3.png"), Image.FromFile("images\\Zombie\\movL3.png"), Image.FromFile("images\\Zombie\\movL4.png"), Image.FromFile("images\\Zombie\\movL4.png"), Image.FromFile("images\\Zombie\\movL4.png") };
          Image[] img_spawning = {  Image.FromFile("images\\Zombie\\spawn1.png"), Image.FromFile("images\\Zombie\\spawn1.png"), Image.FromFile("images\\Zombie\\spawn1.png"), Image.FromFile("images\\Zombie\\spawn2.png"), Image.FromFile("images\\Zombie\\spawn2.png"), Image.FromFile("images\\Zombie\\spawn2.png"), Image.FromFile("images\\Zombie\\spawn3.png"), Image.FromFile("images\\Zombie\\spawn3.png"), Image.FromFile("images\\Zombie\\spawn3.png"), Image.FromFile("images\\Zombie\\spawn4.png"), Image.FromFile("images\\Zombie\\spawn4.png"), Image.FromFile("images\\Zombie\\spawn4.png"),Image.FromFile("images\\Zombie\\movR1.png") };
-        Image[] img_die = { Image.FromFile("images\\Zombie\\die1.png"), Image.FromFile("images\\Zombie\\die1.png"), Image.FromFile("images\\Zombie\\die1.png"),  Image.FromFile("images\\Zombie\\die2.png"), Image.FromFile("images\\Zombie\\die2.png"), Image.FromFile("images\\Zombie\\die2.png"), Image.FromFile("images\\Zombie\\die3.png"), Image.FromFile("images\\Zombie\\die3.png"), Image.FromFile("images\\Zombie\\die3.png"),  Image.FromFile("images\\Zombie\\die4.png"), Image.FromFile("images\\Zombie\\die4.png"), Image.FromFile("images\\Zombie\\die4.png") };
+        Image[] img_die_R = { Image.FromFile("images\\Zombie\\die1R.png"), Image.FromFile("images\\Zombie\\die1R.png"), Image.FromFile("images\\Zombie\\die1R.png"),  Image.FromFile("images\\Zombie\\die2R.png"), Image.FromFile("images\\Zombie\\die2R.png"), Image.FromFile("images\\Zombie\\die2R.png"), Image.FromFile("images\\Zombie\\die3R.png"), Image.FromFile("images\\Zombie\\die3R.png"), Image.FromFile("images\\Zombie\\die3R.png"),  Image.FromFile("images\\Zombie\\die4R.png"), Image.FromFile("images\\Zombie\\die4R.png"), Image.FromFile("images\\Zombie\\die4R.png") };
+        Image[] img_die_L = { Image.FromFile("images\\Zombie\\die1L.png"), Image.FromFile("images\\Zombie\\die1L.png"), Image.FromFile("images\\Zombie\\die1L.png"), Image.FromFile("images\\Zombie\\die2L.png"), Image.FromFile("images\\Zombie\\die2L.png"), Image.FromFile("images\\Zombie\\die2L.png"), Image.FromFile("images\\Zombie\\die3L.png"), Image.FromFile("images\\Zombie\\die3L.png"), Image.FromFile("images\\Zombie\\die3L.png"), Image.FromFile("images\\Zombie\\die4L.png"), Image.FromFile("images\\Zombie\\die4L.png"), Image.FromFile("images\\Zombie\\die4L.png") };
         Image[] img_hitting_R = { Image.FromFile("images\\Zombie\\hit1R.png"), Image.FromFile("images\\Zombie\\hit1R.png"), Image.FromFile("images\\Zombie\\hit2R.png"), Image.FromFile("images\\Zombie\\hit2R.png"), Image.FromFile("images\\Zombie\\hit3R.png"), Image.FromFile("images\\Zombie\\hit3R.png") };
         Image[] img_hitting_L = { Image.FromFile("images\\Zombie\\hit1L.png"), Image.FromFile("images\\Zombie\\hit1L.png"), Image.FromFile("images\\Zombie\\hit2L.png"), Image.FromFile("images\\Zombie\\hit2L.png"), Image.FromFile("images\\Zombie\\hit3L.png") ,Image.FromFile("images\\Zombie\\hit3L.png") };
-
         Image img_standing = Image.FromFile("images\\Zombie\\movD2.png");
         int counter_wr = 0;
         int counter_wl = 0;
@@ -29,11 +29,13 @@ namespace ZombieSlayer
         int counter_hr = 0;
         int counter_hl = 0;
         int hits = 0;
+        int z_die = 0;
         public const int STANDING = 0;
         public const int LEFT = 1;
         public const int RIGHT = 2;
         public const int SPAWN = 3;
-        public const int DIE = 4;
+        public const int DIE_R = 4;
+        public const int DIE_L = 7;
         public const int HITTING_R = 5;
         public const int HITTING_L = 6;
         public int state=0 ;
@@ -42,6 +44,14 @@ namespace ZombieSlayer
         public bool search = false;
         Random random = new Random();
 
+        public int GetZD()
+        {
+            return z_die;
+        }
+        public void SetZD(int n)
+        {
+            this.z_die = n;
+        }
         public int GetRX(int screen_w)
         {
             return random.Next(0, screen_w);        }
@@ -63,10 +73,7 @@ namespace ZombieSlayer
             this.w = w;
             this.x = x;
             this.y = y;
-         
-
-
-
+  
         }
         public void SetX(int x)
         {
@@ -97,13 +104,21 @@ namespace ZombieSlayer
             return img_spawning.Length;
         }
       
-        public int GetD()
+        public int GetDR()
         {
             return counter_d;
         }
-        public int GetLD()
+        public int GetLDR()
         {
-            return img_die.Length;
+            return img_die_R.Length;
+        }
+        public int GetDL()
+        {
+            return counter_d;
+        }
+        public int GetLDL()
+        {
+            return img_die_L.Length;
         }
         public int GetHits()
         {
@@ -157,11 +172,19 @@ namespace ZombieSlayer
                     }
                   
                     break;
-                case Zombie.DIE:
+                case Zombie.DIE_R:
 
-                    while (counter_d != img_die.Length)
+                    while (counter_d != img_die_R.Length)
                     {
-                        img = img_die[counter_d];
+                        img = img_die_R[counter_d];
+                        counter_d++;
+
+                        break;
+                    }break;
+                case Zombie.DIE_L:
+                    while (counter_d != img_die_L.Length)
+                    {
+                        img = img_die_L[counter_d];
                         counter_d++;
 
                         break;

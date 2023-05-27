@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Character.cs" />
+    <Compile Include="Sheild.cs" />
+    <Compile Include="Skeleton.cs" />
+    <Compile Include="Healing_Potion.cs" />
     <Compile Include="Health.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
