@@ -39,9 +39,11 @@ namespace SkeletonSlayer
         public const int HITTING_R = 5;
         public const int HITTING_L = 6;
         public int state = 0;
+        public int last_state = 0;
         public bool ready = false;
         public bool die = false;
         public bool search = false;
+        public bool shot = false;
         Random random = new Random();
 
         public int GetZD()
@@ -127,6 +129,19 @@ namespace SkeletonSlayer
         }
         public void draw(Graphics gfx, int x, int y, int w, int h)
         {
+            if (shot)
+            {
+                last_state = state;
+                if (last_state == 2)
+                {
+                    state = 4;
+                }
+                else if (last_state == 1)
+                {
+                    state = 7;
+                }
+
+            }
             switch (state)
             {
                /* case Skeleton.STANDING:

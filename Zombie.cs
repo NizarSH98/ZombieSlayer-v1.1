@@ -38,10 +38,12 @@ namespace ZombieSlayer
         public const int DIE_L = 7;
         public const int HITTING_R = 5;
         public const int HITTING_L = 6;
+        public  int last_state = 0;
         public int state=0 ;
         public bool ready = false;
         public bool die = false;
         public bool search = false;
+        public bool shot = false;
         Random random = new Random();
 
         public int GetZD()
@@ -124,8 +126,22 @@ namespace ZombieSlayer
         {
           return hits;
         }
+    
         public void draw(Graphics gfx, int x, int y,int w,int h)
         {
+            if (shot)
+            {
+                last_state = state;
+                if (last_state == 2)
+                {
+                    state = 4;
+                }
+                else if(last_state == 1)
+                {
+                    state = 7;
+                }
+           
+            }
             switch (state)
             {
                 case Zombie.STANDING:
@@ -167,7 +183,7 @@ namespace ZombieSlayer
                     {
                         img = img_spawning[counter_sp];
                         counter_sp++;
-                       
+                    
                         break;
                     }
                   
@@ -178,15 +194,17 @@ namespace ZombieSlayer
                     {
                         img = img_die_R[counter_d];
                         counter_d++;
-
-                        break;
+                       
+       
+                            break;
+                        
                     }break;
                 case Zombie.DIE_L:
                     while (counter_d != img_die_L.Length)
                     {
                         img = img_die_L[counter_d];
                         counter_d++;
-
+                        
                         break;
                     }
 

@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="fireshot.cs" />
+    <Compile Include="GameProgress.cs" />
     <Compile Include="Sheild.cs" />
     <Compile Include="Skeleton.cs" />
     <Compile Include="Healing_Potion.cs" />
