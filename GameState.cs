@@ -137,5 +137,12 @@ namespace ZombieSlayer
         public int shotx { get; set; }
         public int shoty { get; set; }
         public int shotcounter { get; set; }
+        public int B_X { get; set; }
+        public int B_Y { get; set; }
+        public int boss_timer { get; set; }
+        public int boss_hit { get; set; }
+        public bool game_won { get; set; }
+        public int title_counter { get; set; }
+        public int survival { get; set; }
     }
 }

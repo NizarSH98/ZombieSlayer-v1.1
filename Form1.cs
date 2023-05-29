@@ -7,8 +7,8 @@ using SkeletonSlayer;
 using System.Threading;
 using System.Diagnostics;
 using System.Media;
+using System.Reflection.Emit;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace ZombieSlayer
 {
@@ -18,8 +18,7 @@ namespace ZombieSlayer
     public partial class Form1 : Form
     {
         string dir = Directory.GetCurrentDirectory();
-
-        SoundPlayer MainMenu = new System.Media.SoundPlayer(@"sounds\\MusicMainMenu.wav");    //Added
+        SoundPlayer MainMenu = new System.Media.SoundPlayer(@"sounds\\MusicMainMenu.wav");    
         SoundPlayer Levels = new System.Media.SoundPlayer(@"sounds\\MusicMap.wav");
         SoundPlayer Boss = new System.Media.SoundPlayer(@"sounds\\MusicBossFight.wav");
         SoundPlayer hit = new System.Media.SoundPlayer(@"sounds\\Sound_Hit.wav");
@@ -27,8 +26,8 @@ namespace ZombieSlayer
 
         GameState gameState = new GameState();
 
-
-        Image[] map = { Image.FromFile("images\\map\\map1.png"), Image.FromFile("images\\map\\map1_1.png"), Image.FromFile("images\\map\\map2.png"), Image.FromFile("images\\map\\map3.png"), Image.FromFile("images\\map\\map3_2.png"), Image.FromFile("images\\map\\map3_3.png") };
+        Image[] Title= { Image.FromFile("images\\Title\\Title_1.png"), Image.FromFile("images\\Title\\Title_1.png"), Image.FromFile("images\\Title\\Title_2.png"), Image.FromFile("images\\Title\\Title_2.png"), Image.FromFile("images\\Title\\Title_3.png"), Image.FromFile("images\\Title\\Title_3.png"), Image.FromFile("images\\Title\\Title_4.png"), Image.FromFile("images\\Title\\Title_4.png"), Image.FromFile("images\\Title\\Title_5.png"), Image.FromFile("images\\Title\\Title_5.png"), Image.FromFile("images\\Title\\Title_6.png"), Image.FromFile("images\\Title\\Title_6.png"), Image.FromFile("images\\Title\\Title_7.png"), Image.FromFile("images\\Title\\Title_7.png"), Image.FromFile("images\\Title\\Title_8.png"), Image.FromFile("images\\Title\\Title_8.png"), Image.FromFile("images\\Title\\Title_9.png"), Image.FromFile("images\\Title\\Title_9.png"), Image.FromFile("images\\Title\\Title_10.png"), Image.FromFile("images\\Title\\Title_11.png"), Image.FromFile("images\\Title\\Title_10.png"), Image.FromFile("images\\Title\\Title_11.png") };
+        Image[] map = { Image.FromFile("images\\map\\map1.png"), Image.FromFile("images\\map\\map1_1.png"), Image.FromFile("images\\map\\map2.png"), Image.FromFile("images\\map\\map3.png"), Image.FromFile("images\\map\\map3_2.png"), Image.FromFile("images\\map\\map3_3.png"),Image.FromFile("images\\map\\Survival.png") };
         Image[] main_menu = { Image.FromFile("images\\map\\Main_Menu.png"), Image.FromFile("images\\map\\Main_1.png"), Image.FromFile("images\\map\\Main_2.png") };
         Image mageR = Image.FromFile("images\\mage_R\\idle_1.png");
         Image mageL = Image.FromFile("images\\mage_L\\idle_1.png");
@@ -43,6 +42,7 @@ namespace ZombieSlayer
         Image[] mage_die_L = { Image.FromFile("images\\mage_L\\die-1.png"), Image.FromFile("images\\mage_L\\die-2.png"), Image.FromFile("images\\mage_L\\die-3.png"), Image.FromFile("images\\mage_L\\die-4.png"), Image.FromFile("images\\mage_L\\die-5.png"), Image.FromFile("images\\mage_L\\die-6.png"), Image.FromFile("images\\mage_L\\die-7.png"), Image.FromFile("images\\mage_L\\die-8.png") };
         Image Pause = Image.FromFile("images\\More\\Pause.png");
         Image G_O = Image.FromFile("images\\More\\Game_Over.png");
+        Image G_W = Image.FromFile("images\\More\\Game_Won.png");
         Image No = Image.FromFile("images\\More\\NO.png");
         Image Yes = Image.FromFile("images\\More\\YES.png");
         Image M_O_YesNo = Image.FromFile("images\\More\\Mouse_Over_YesNo.png");
@@ -56,6 +56,7 @@ namespace ZombieSlayer
         Image ARCADE = Image.FromFile("images\\More\\Arcade.png");
         Image SURVIVAL = Image.FromFile("images\\More\\Survival.png");
         Image Gate = Image.FromFile("images\\More\\Gate.png");
+
         int mage_walk_counter = 0;
         int mage_run_counter = 0;
         int mage_atk_counter = 0;
@@ -119,6 +120,9 @@ namespace ZombieSlayer
         int health_counter_i = 0;
         int esc_counter = 0;
         int sheild_count = 0;
+        int MM_sound = 0;
+        int LVL_sound = 0;
+        int boss_sound = 0;
         Random r = new Random();
         bool moveup = false;
         bool movedown = false;
@@ -168,22 +172,32 @@ namespace ZombieSlayer
         bool lvl_1_draw = false;
         int lvl_2_time = 60;
         bool lvl_2_draw = false;
-        int boss_lvl_time = 40;
+        int boss_lvl_time = 60;
         bool boss_lvl_draw = false;
         fireshot[] F;
         Zombie[] zombies;
         Skeleton[] skeletonss;
         fireshot[] Fs;
+        PowerUp PU;
+        int show_powerup = 0;
+        int pu_cntr = 0;
         int shotx;
         int shoty;
         int shotcounter = 0;
-
-
+        char shotdir;
+        bool shothit = false;
 
         bool save = false;
         bool load = false;
 
-
+        Boss BOSS;
+        int B_X;
+        int B_Y;
+        int boss_timer = 40;
+        int boss_hit = 0;
+        bool game_won = false;
+        int title_counter = 0;
+        int survival = 0;
         public Form1()
         {
             InitializeComponent();
@@ -210,13 +224,10 @@ namespace ZombieSlayer
                 g.DrawImage(SURVIVAL, (screen_w / 3) * 2, screen_h / 2 - screen_h / 20, screen_w / 10, screen_h / 10);
                 g.DrawImage(Gate, screen_w / 15, (screen_h / 2 - screen_h / 20) + screen_h / 10, screen_w / 15, screen_h / 10);
                 g.DrawImage(Ext_Y, screen_w / 18, ((screen_h / 2 - screen_h / 20) + screen_h / 10) - screen_h / 10, screen_w / 10, screen_h / 10);
-
-
-            }
+                      }
             else
             {
                 g.DrawImage(map[mapI], map_x, map_y, map_w, map_h);
-
             }
             //g.DrawImage(zombie_R[i ++], map_x, map_y, mage_w, mage_h);
 
@@ -237,6 +248,11 @@ namespace ZombieSlayer
                 if (HP_3.ready && !HP_3.took && LEVEL2)
                 {
                     HP_3.draw(g, HP_3.GetX(), HP_3.GetY(), mage_w, mage_h);
+
+                }
+                if (PU.ready && !PU.took && LEVEL2)
+                {
+                    PU.draw(g, PU.GetX(), PU.GetY(), mage_w, mage_h);
 
                 }
                 if (sheild.ready && !sheild.took && LEVEL1 && !LEVEL2)
@@ -406,6 +422,30 @@ namespace ZombieSlayer
                         }
 
                     }
+                if (zombies != null)
+                {
+                    for(i=0; i < zombies.Length; i++)
+                    {
+                        if(zombies[i].state != 0 && zombies[i].ready)
+                        {
+                            zombies[i].draw(g, zombies[i].GetX(), zombies[i].GetY(), mage_w, mage_h);
+                        }
+                    }
+                }
+                if (skeletonss != null)
+                {
+                    for (i = 0; i < skeletonss.Length; i++)
+                    {
+                        if (skeletonss[i].state != 0 && skeletonss[i].ready)
+                        {
+                            skeletonss[i].draw(g, skeletonss[i].GetX(), skeletonss[i].GetY(), mage_w, mage_h);
+                        }
+                    }
+                }
+                if (BOSS != null)
+                {if(BOSS.ready)
+                    BOSS.draw(g, BOSS.GetX(), BOSS.GetY(), mage_w * 2, mage_h * 2);
+                }
             }
             if (mage_die && (mage_die_counter != mage_die_L.Length) && (mage_die_counter != mage_die_R.Length))
             {
@@ -455,7 +495,6 @@ namespace ZombieSlayer
                 if (mapI == 0)
                 {
                     g.DrawImage(map[mapI + 1], map_x, map_y, map_w, map_h);
-
                 }
                 else if (mapI == 3 || mapI == 4)
                 {
@@ -476,6 +515,13 @@ namespace ZombieSlayer
                 g.DrawImage(Ext, P_X + (P_X / 2) + P_W / 6, P_Y + P_H - (P_H / 4) + (P_H / 50), P_W / 2, (P_H / 3) + P_H / 20);
 
             }
+
+            if (game_won)
+            {
+                g.DrawImage(G_W, P_X, P_Y, P_W, P_H);
+                g.DrawImage(RST, P_X + P_W / 7, P_Y + P_H - (P_H / 6), P_W / 3, P_H / 4);
+                g.DrawImage(Ext, P_X + (P_X / 2) + P_W / 6, P_Y + P_H - (P_H / 4) + (P_H / 50), P_W / 2, (P_H / 3) + P_H / 20);
+            }
             if (mage_die)
             {
                 g.DrawImage(G_O, GO_X, GO_Y, GO_W, GO_H);
@@ -488,7 +534,7 @@ namespace ZombieSlayer
             }
             for (int i = 0; i < 5; i++)
             {
-                if (F[i].GetShoot() == true && Arcade)
+                if (F[i].GetShoot() == true&&Arcade)
                 {
 
                     F[i].draw_shot(g, mage_w / 2, mage_h / 2, screen_w, screen_h, shottype);
@@ -497,7 +543,7 @@ namespace ZombieSlayer
             }
             for (int i = 0; i < 50; i++)
             {
-                if (Fs[i].GetShoot() == true && Survival)
+                if (Fs[i].GetShoot() == true&&Survival)
                 {
 
                     Fs[i].draw_shot(g, mage_w / 2, mage_h / 2, screen_w, screen_h, shottype);
@@ -508,6 +554,18 @@ namespace ZombieSlayer
             {
                 g.DrawImage(LVL_1, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);
             }
+            if(Main_Menu&&Arcade&&!lvl_1_draw  && !LEVEL1&&!LEVEL2&&lvl_1_time<=0&&!completed&&!completed_2)
+            {
+                g.DrawImage(LVL_1, mage_w - mage_w, screen_h / 100, mage_w, mage_h / 2);
+            }
+            if (Main_Menu && Arcade && !lvl_2_draw && LEVEL1 &&!LEVEL2&& lvl_2_time <= 0)
+            {
+                g.DrawImage(LVL_2, mage_w - mage_w, screen_h / 100, mage_w, mage_h / 2);
+            }
+            if (Main_Menu && Arcade && !boss_lvl_draw && boss_lvl_time <= 0 && LEVEL2)
+            {
+                g.DrawImage(BOSS_LVL, mage_w - mage_w, screen_h / 100, mage_w, mage_h / 2);
+            }
             if (completed || completed_2)
             {
                 if (!pause)
@@ -516,25 +574,22 @@ namespace ZombieSlayer
             if (lvl_2_draw && !pause)
             {
                 g.DrawImage(LVL_2, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);
-
             }
             if (boss_lvl_draw && !pause)
             {
                 g.DrawImage(BOSS_LVL, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);
+            }
+
+            if (!Main_Menu)
+            {
+                g.DrawImage(Title[title_counter], 0, 0, screen_w, screen_h / 2);
 
             }
+
         }
 
         private void InitGfx()
         {
-
-            MainMenu.Play();                                                                        //added
-
-
-
-
-
-
 
             // screen_w = this.Size.Width;
             // screen_h = this.Size.Height;
@@ -560,6 +615,7 @@ namespace ZombieSlayer
             HP_3 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
             sheild = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
             sheild2 = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
+            PU = new PowerUp(-mage_w / 2, screen_h - (3 * mage_h / 4), mage_w / 2, mage_h / 4);
             zombie = new Zombie(Z_x, Z_y, mage_w, mage_h);
             zombies_1 = new Zombie[17];
             for (i = 0; i < zombies_1.Length; i++)
@@ -599,46 +655,51 @@ namespace ZombieSlayer
             F[4] = new fireshot();
             Z_x = r.Next(0, screen_w);
             Z_y = r.Next(0, screen_h);
-            zombies = new Zombie[0];
-            skeletonss = new Skeleton[0];
+            zombies = new Zombie[99];
+            skeletonss = new Skeleton[99];
+            for (i = 0; i < zombies.Length; i++)
+            {
+                Z_x = r.Next(0, screen_w);
+                Z_y = r.Next(0, screen_h);
+                zombies[i] = new Zombie(Z_x, Z_y, mage_w, mage_h);
+
+            }
+
+            skeletonss = new Skeleton[35];
+            for (i = 0; i < skeletons.Length; i++)
+            {
+                S_x = r.Next(0, screen_w);
+                S_y = r.Next(0, screen_h);
+                skeletonss[i] = new Skeleton(S_x, S_y, mage_w, mage_h);
+
+            }
             Fs = new fireshot[50];
-            for (int i = 0; i < 50; i++)
+            for(int i = 0; i < 50; i++)
             {
                 Fs[i] = new fireshot();
             }
 
-        }
+            BOSS=new Boss(screen_w+(2*mage_w) , screen_h/4,mage_w,mage_h);
 
+        }
+    
         private void timer1_Tick(object sender, EventArgs e)
         {
-
-            if (Main_Menu == true)                                                                                                               //Added
-            {
-
-                Levels.Stop();
-                Boss.Stop();
-
-
-            }
-
-            else if (lvl_1_draw == true || lvl_2_draw == true)
-            {
-                MainMenu.Stop();
-                Levels.Play();
-
-            }
-            else if (BOSS_LEVEL == true)
-            {
-                Levels.Stop();
-                Boss.Play();
-
-            }
-            else
-                MainMenu.Play();
-
-
+          
             if (!Main_Menu)
             {
+                title_counter++;
+                if (title_counter == Title.Length)
+                {
+                    title_counter = 0;
+                }
+                if (MM_sound == 1)
+                {
+                    MainMenu.Play();
+                }
+                MM_sound++;
+
+
                 if (Math.Abs(mage_x - screen_w / 15) < mage_w / 3 && Math.Abs(mage_y - (screen_h / 2 + mage_h / 3)) < mage_h)
                 {
                     Application.Exit();
@@ -766,9 +827,11 @@ namespace ZombieSlayer
                 {
                     mage_y = screen_h - mage_h;
                     Main_Menu = true;
+                    
                 }
                 if (restart)
                 {
+                    BOSS = new Boss(screen_w + (2 * mage_w), screen_h / 4, mage_w, mage_h);
 
                     zombies_1 = new Zombie[17];
                     for (i = 0; i < zombies_1.Length; i++)
@@ -816,10 +879,21 @@ namespace ZombieSlayer
             }
             if (Main_Menu && Arcade)
             {
+
+                LVL_sound++;
+                if (LVL_sound == 1)
+                {
+                    MainMenu.Stop();
+                    Levels.PlayLooping();
+
+                }
+
                 timer3.Stop();
 
                 if (rc == 0)
                 {
+
+
                     GO_W = screen_w / 2;
                     GO_H = screen_h / 3;
                     GO_X = screen_w / 2 - GO_W / 2;
@@ -832,6 +906,8 @@ namespace ZombieSlayer
 
                     if (!LEVEL1 && !LEVEL2)
                     {
+
+
                         lvl_1_time--;
                         if (lvl_1_time > 0)
                         {
@@ -1689,6 +1765,24 @@ namespace ZombieSlayer
                         }
                         if (new_map_2)
                         {
+                            boss_sound++;
+                            boss_timer--;
+                            if (boss_timer > 20)
+                            {
+                                BOSS.ready = true;
+                                BOSS.Setstate(-1);
+                            }
+                            if (boss_timer == 0)
+                            {
+                                BOSS.Setstate(0);
+
+                            }
+                            if (boss_sound == 1)
+                            {
+                                Levels.Stop();
+                                Boss.PlayLooping();
+
+                            }
                             completed_2 = false;
                             boss_lvl_time--;
                             if (boss_lvl_time > 0)
@@ -1698,6 +1792,7 @@ namespace ZombieSlayer
                             else
                             {
                                 boss_lvl_draw = false;
+                               
                             }
                             for (int i = 0; i < 5; i++)
                             {
@@ -1711,24 +1806,159 @@ namespace ZombieSlayer
                                 }
                             }
                         }
+                        if (boss_lvl_time == 0)
+                        {
+                            BOSS.search = true;
+                        }
+
                         if (!mage_die)
                         {
 
-                            if (mage_y < mage_h / 3 && mapI == 2)
+
+                            if (BOSS.search)
                             {
-                                health_counter = 0;
-                                mapI = 3;
-                                mage_y = screen_h + mage_h / 2;
-                                new_map_2 = true;
-                                for (int o = 0; o < Health.Length; o++)
+                               
+                                if (BOSS.GetX() > mage_x)
                                 {
-                                    Health[o] = 0;
+
+
+                                    if ((Math.Abs(BOSS.GetX() - mage_x) < (mage_w)) && Math.Abs(BOSS.GetY() - mage_y) < mage_h)
+                                    {
+                                        
+                                        BOSS.Setstate(6);
+                                    
+                                            health_counter = BOSS.GetHits();
+
+                                    }
+                                    else
+                                    {
+                                        BOSS.SetX(BOSS.GetX() - mage_step - 5);
+                                        BOSS.Setstate(1);
+                                    }
+
+
+
+                                }
+                                if (BOSS.GetX() < mage_x)
+                                {
+
+
+                                    if (Math.Abs(BOSS.GetX() - mage_x) < mage_w && Math.Abs(BOSS.GetY() - mage_y) < mage_h)
+                                    {
+                                        BOSS.Setstate(5);
+                                        health_counter = BOSS.GetHits();
+
+                                    }
+                                    else
+                                    {
+                                        BOSS.SetX(BOSS.GetX() + mage_step - 5);
+
+                                        BOSS.Setstate(2);
+                                    }
+                                }
+                                if (BOSS.GetY() > mage_y)
+                                    BOSS.SetY(BOSS.GetY() - mage_step - 5);
+
+                                if (BOSS.GetY() < mage_y)
+                                    BOSS.SetY(BOSS.GetY() + mage_step - 5);
+                            }
+                           
+
+
+
+
+                            if (Math.Abs(BOSS.GetX() - mage_x) < mage_w  && Math.Abs(BOSS.GetY() - mage_y) < mage_h && BOSS != null && attack && BOSS.GetX() < mage_x)
+                            {
+                                boss_hit++;
+                                if (boss_hit == 30)
+                                {
+                                    BOSS.die = true;
+                                    BOSS.search = false;
+                                    BOSS.Setstate(4);
+                                    game_won = true;
+                                }
+                          
+                            }
+                            else if (Math.Abs(BOSS.GetX() - mage_x) < mage_w  && Math.Abs(BOSS.GetY() - mage_y) < mage_h  && BOSS != null && attack && BOSS.GetX() > mage_x)
+                            {
+                                boss_hit++;
+                                if (boss_hit == 30)
+                                {
+                                    BOSS.die = true;
+                                    BOSS.search = false;
+
+                                    BOSS.Setstate(7);
+                                    game_won = true;
+                                }
+                            
+                            }
+                            if (BOSS.die)
+                            {if(BOSS.GetX() > mage_x)
+                                {
+                                    BOSS.Setstate(7);
+                                }
+                                if (BOSS.GetX() < mage_x)
+                                {
+                                    BOSS.Setstate(4);
                                 }
                             }
+                            for (i = 0; i < F.Length; i++)
+                            {
+                                if (Math.Abs(F[i].GetX() - BOSS.GetX()) < mage_w/3 && Math.Abs(BOSS.GetY() - BOSS.GetY()) < mage_h/3 && !F[i].Gethit() && !BOSS.die)
+                                {
+                                    if (shottype == 1)
+                                    {
+                                        boss_hit++;
+                                    }
+                                    else if (shottype == 2)
+                                    {
+                                        boss_hit += 2;
+                                    }
+                                    if (boss_hit >= 30)
+                                    {
+                                        BOSS.search = false;
+                                        BOSS.die = true;
+                                        game_won = true;
 
-                            zombies_1 = null;
+                                    }
 
+                                    F[i].Sethit(true);
+                                }
+                            }
+                        }
 
+                        if (health_counter == health.Length - 1)
+                        {
+
+                            mage_die = true;
+                      
+
+                        }
+
+                        if (PU.ready)
+                        {
+                            mapI = 4;
+                        }
+                        if (PU.took)
+                        {
+                            shottype = 2;
+                        }
+                        if (mage_y < mage_h / 3 && mapI == 2)
+                        {
+                            health_counter = 0;
+                            mapI = 3;
+                            mage_y = screen_h + mage_h / 2;
+                            new_map_2 = true;
+                            for (int o = 0; o < Health.Length; o++)
+                            {
+                                Health[o] = 0;
+                            }
+                        }
+
+                        zombies_1 = null;
+
+                        if (!mage_die)
+                        {
                             if (attack == true)
                             {
                                 moveright = false;
@@ -1850,36 +2080,73 @@ namespace ZombieSlayer
                                     mage_walk_counter = 0;
                             }
                         }
+                        if (mage_die)
+                        {
+                            if ((mage_die_counter != mage_die_L.Length) && (mage_die_counter != mage_die_R.Length))
+                                mage_die_counter++;
+
+                        }
 
 
-                        Invalidate();
+                        if (game_won)
+                        {
+                            if ((Math.Abs((P_X + P_W / 7) - MousePosition.X)) < P_W / 3 && Math.Abs((P_Y + P_H - (P_H / 6)) - MousePosition.Y) < (P_H / 4) && MousePosition.X > (P_X + P_W / 7) && MousePosition.Y > P_Y + P_H - (P_H / 6))
+                            {
+                                mouse_over_rst = true;
+                                mouse_over_ext = false;
+
+                            }
+                            else if ((Math.Abs((P_X + (P_X / 2) + P_W / 6) - MousePosition.X) < (P_W / 2) && Math.Abs((P_Y + P_H - (P_H / 4) + (P_H / 50)) - MousePosition.Y) < ((P_H / 3) + P_H / 20) && MousePosition.X > (P_X + (P_X / 2) + P_W / 6) && MousePosition.Y > (P_Y + P_H - (P_H / 4) + (P_H / 50))))
+                            {
+                                mouse_over_ext = true;
+                                mouse_over_rst = false;
+
+                            }
+                            else
+                            {
+                                mouse_over_rst = false;
+                                mouse_over_ext = false;
+
+                            }
+                        }
+
                     }
 
+               
 
-                }
-                if (mage_die)
-                {
-                    if ((Math.Abs(Yes_X - MousePosition.X) < YesNo_W && Math.Abs(YesNo_Y - MousePosition.Y) < YesNo_H && MousePosition.X > Yes_X && MousePosition.Y > YesNo_Y))
+                    if (mage_die)
                     {
-                        mouse_over_yes = true;
-                        mouse_over_no = false;
-                    }
-                    else if ((Math.Abs(No_X - MousePosition.X) < YesNo_W && Math.Abs(YesNo_Y - MousePosition.Y) < YesNo_H && MousePosition.X > Yes_X && MousePosition.Y > YesNo_Y))
-                    {
-                        mouse_over_no = true;
-                        mouse_over_yes = false;
-                    }
-                    else
-                    {
-                        mouse_over_yes = false;
-                        mouse_over_no = false;
-                    }
+                        if ((Math.Abs(Yes_X - MousePosition.X) < YesNo_W && Math.Abs(YesNo_Y - MousePosition.Y) < YesNo_H && MousePosition.X > Yes_X && MousePosition.Y > YesNo_Y))
+                        {
+                            mouse_over_yes = true;
+                            mouse_over_no = false;
+                        }
+                        else if ((Math.Abs(No_X - MousePosition.X) < YesNo_W && Math.Abs(YesNo_Y - MousePosition.Y) < YesNo_H && MousePosition.X > Yes_X && MousePosition.Y > YesNo_Y))
+                        {
+                            mouse_over_no = true;
+                            mouse_over_yes = false;
+                        }
+                        else
+                        {
+                            mouse_over_yes = false;
+                            mouse_over_no = false;
+                        }
 
+                    }
+                    Invalidate();
                 }
             }
             if (Main_Menu && Survival)
             {
-                mapI = 2;
+                survival++;
+                boss_sound++;
+                if (boss_sound == 1)
+                {
+                    MainMenu.Stop();
+                    Boss.PlayLooping();
+
+                }
+                mapI = 6;
                 shottype = 2;
                 for (int i = 0; i < 50; i++)
                 {
@@ -2011,8 +2278,307 @@ namespace ZombieSlayer
                     if (mage_walk_counter == mage_L.Length)
                         mage_walk_counter = 0;
                 }
+              
+               
+
+               
+                if (!mage_die)
+                {
+
+                    if (((skeleton_counter) < skeletonss.Length) && (skeleton_time_counter == 0))
+                    {
+                        skeletonss[skeleton_counter].ready = true;
+                        skeleton_counter++;
+                    }
+                    skeleton_time_counter = skeleton_time_counter == 0 ? 20 : skeleton_time_counter - 1;
+                    if (((zombie2_counter) < zombies.Length) && (zombie2_time_counter == 0))
+                    {
+                        zombies[zombie2_counter].ready = true;
+                        zombie2_counter++;
+                    }
+                    zombie2_time_counter = zombie2_time_counter == 0 ? 35 : zombie2_time_counter - 1;
+
+                    for (int i = 0; i < skeletonss.Length; i++)
+                    {
+
+                        if (!skeletonss[i].die)
+                        {
+                            if (!skeletonss[i].search)
+                            {
+                                skeletonss[i].SetX(S_x);
+                                skeletonss[i].SetY(S_y);
+                                skeletonss[i].Setstate(3);
+                                if (skeletonss[i].GetSp() == skeletonss[i].GetLSp())
+                                {
+                                    skeletonss[i].search = true;
+                                    S_x = r.Next(0, screen_w);
+                                    S_y = r.Next(0, screen_h);
+                                }
+
+                            }
 
 
+
+                            if (skeletonss[i].search)
+                            {
+                                if (skeletonss[i].GetX() > mage_x)
+                                {
+
+
+                                    if ((Math.Abs(skeletonss[i].GetX() - mage_x) < (mage_w / 2)) && Math.Abs(skeletonss[i].GetY() - mage_y) < mage_h / 2)
+                                    {
+                                        skeletonss[i].Setstate(6);
+                                        if (health_counter != health.Length - 1)
+                                            if (!sh)
+                                            {
+                                                health_counter_i = skeletonss[i].GetHits();
+
+                                                Health[i] = health_counter_i;
+                                                health_counted = false;
+                                            }
+
+                                    }
+                                    else
+                                    {
+                                        skeletonss[i].SetX(skeletonss[i].GetX() - mage_step - 1);
+                                        skeletonss[i].Setstate(1);
+                                    }
+
+
+
+                                }
+                                if (skeletonss[i].GetX() < mage_x)
+                                {
+
+
+                                    if (Math.Abs(skeletonss[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(skeletonss[i].GetY() - mage_y) < mage_h / 2)
+                                    {
+                                        skeletonss[i].Setstate(5);
+                                        if (!sh)
+                                        {
+                                            health_counter_i = skeletonss[i].GetHits();
+                                            Health[i] = health_counter_i;
+                                            health_counted = false;
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        skeletonss[i].SetX(skeletonss[i].GetX() + mage_step - 1);
+
+                                        skeletonss[i].Setstate(2);
+                                    }
+                                }
+                                if (skeletonss[i].GetY() > mage_y)
+                                    skeletonss[i].SetY(skeletonss[i].GetY() - mage_step - 1);
+
+                                if (skeletonss[i].GetY() < mage_y)
+                                    skeletonss[i].SetY(skeletonss[i].GetY() + mage_step - 1);
+                            }
+                        }
+
+
+
+                        if (health_counter == health.Length - 1)
+                        {
+
+                            mage_die = true;
+
+                        }
+                        if (Math.Abs(skeletonss[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(skeletonss[i].GetY() - mage_y) < mage_h / 2 && skeletonss[i] != null && attack && skeletonss[i].GetX() < mage_x)
+                        {
+                            skeletonss[i].die = true;
+                            skeletonss[i].Setstate(4);
+                            if (skeletonss[i].GetDR() == skeletonss[i].GetLDR())
+                            {
+
+                                skeletonss[i].Setstate(0);
+                            }
+                        }
+                        else if (Math.Abs(skeletonss[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(skeletonss[i].GetY() - mage_y) < mage_h / 2 && skeletonss[i] != null && attack && skeletonss[i].GetX() > mage_x)
+                        {
+                            skeletonss[i].die = true;
+                            skeletonss[i].Setstate(7);
+                            if (skeletonss[i].GetDL() == skeletonss[i].GetLDL())
+                            {
+
+                                skeletonss[i].Setstate(0);
+                            }
+                        }
+
+                    }
+
+                    for (int i = 0; i < zombies.Length; i++)
+                    {
+
+                        if (!zombies[i].die)
+                        {
+                            if (!zombies[i].search)
+                            {
+                                zombies[i].SetX(S_x);
+                                zombies[i].SetY(S_y);
+                                zombies[i].Setstate(3);
+                                if (zombies[i].GetSp() == zombies[i].GetLSp())
+                                {
+                                    zombies[i].search = true;
+                                    Z_x = r.Next(0, screen_w);
+                                    Z_y = r.Next(0, screen_h);
+                                }
+
+                            }
+
+
+
+                            if (zombies[i].search)
+                            {
+                                if (zombies[i].GetX() > mage_x)
+                                {
+
+
+                                    if ((Math.Abs(zombies[i].GetX() - mage_x) < (mage_w / 2)) && Math.Abs(zombies[i].GetY() - mage_y) < mage_h / 2)
+                                    {
+                                        zombies[i].Setstate(6);
+                                        if (health_counter != health.Length - 1)
+                                            if (!sh)
+                                            {
+                                                health_counter_i = zombies[i].GetHits();
+
+                                                Health[i] = health_counter_i;
+                                                health_counted = false;
+                                            }
+
+                                    }
+                                    else
+                                    {
+                                        zombies[i].SetX(zombies[i].GetX() - mage_step - 1);
+                                        zombies[i].Setstate(1);
+                                    }
+
+
+
+                                }
+                                if (zombies[i].GetX() < mage_x)
+                                {
+
+
+                                    if (Math.Abs(zombies[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(zombies[i].GetY() - mage_y) < mage_h / 2)
+                                    {
+                                        zombies[i].Setstate(5);
+                                        if (!sh)
+                                        {
+                                            health_counter_i = zombies[i].GetHits();
+
+                                            Health[i] = health_counter_i;
+                                            health_counted = false;
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        zombies[i].SetX(zombies[i].GetX() + mage_step - 1);
+
+                                        zombies[i].Setstate(2);
+                                    }
+                                }
+                                if (zombies[i].GetY() > mage_y)
+                                    zombies[i].SetY(zombies[i].GetY() - mage_step - 1);
+
+                                if (zombies[i].GetY() < mage_y)
+                                    zombies[i].SetY(zombies[i].GetY() + mage_step - 1);
+                            }
+                        }
+
+
+
+                        if (health_counter >= health.Length - 1)
+                        {
+
+                            mage_die = true;
+
+                        }
+                        if (Math.Abs(zombies[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(zombies[i].GetY() - mage_y) < mage_h / 2 && zombies[i] != null && attack && zombies[i].GetX() < mage_x)
+                        {
+                            zombies[i].die = true;
+                            zombies[i].Setstate(4);
+                            if (zombies[i].GetDR() == zombies[i].GetLDR())
+                            {
+
+                                zombies[i].Setstate(0);
+                            }
+                        }
+                        else if (Math.Abs(zombies[i].GetX() - mage_x) < mage_w / 2 && Math.Abs(zombies[i].GetY() - mage_y) < mage_h / 2 && zombies[i] != null && attack && zombies[i].GetX() > mage_x)
+                        {
+                            zombies[i].die = true;
+                            zombies[i].Setstate(7);
+                            if (zombies[i].GetDL() == zombies[i].GetLDL())
+                            {
+
+                                zombies[i].Setstate(0);
+                            }
+                        }
+
+                    }
+                    for (int i = 0; i < 50; i++)
+                    {
+                        if (Fs[i].Gethit() == false)
+                        {
+
+                            if (Fs[i].Getdir() == 2)
+                                Fs[i].SetX(Fs[i].GetX() + 10);
+                            else
+                                Fs[i].SetX(Fs[i].GetX() - 10);
+                        }
+                    }
+                    for (int j = 0; j < zombies.Length; j++)
+                    {
+                        for (int i = 0; i < 50; i++)
+                        {
+                            if (Math.Abs(Fs[i].GetX() - zombies[j].GetX()) < mage_w / 2 && Math.Abs(Fs[i].GetY() - zombies[j].GetY()) < mage_h / 2 && !Fs[i].Gethit() && !zombies[j].die)
+                            {
+
+
+                                zombies[j].search = false;
+                                zombies[j].die = true;
+                                zombies[j].shot = true;
+                                Fs[i].Sethit(true);
+                            }
+
+                        }
+                    }
+                    for (int j = 0; j < skeletonss.Length; j++)
+                    {
+                        for (int i = 0; i < 50; i++)
+                        {
+                            if (Math.Abs(Fs[i].GetX() - skeletonss[j].GetX()) < mage_w / 2 && Math.Abs(Fs[i].GetY() - skeletonss[j].GetY()) < mage_h / 2 && !Fs[i].Gethit() && !skeletonss[j].die)
+                            {
+
+
+                                skeletonss[j].search = false;
+                                skeletonss[j].die = true;
+                                skeletonss[j].shot = true;
+                                Fs[i].Sethit(true);
+                            }
+
+                        }
+                    }
+                }
+
+
+                if (!health_counted && !sh)
+                {
+                    health_counter = 0;
+                    for (i = 0; i < Health.Length; i++)
+                    {
+                        if (health_counter < health.Length - 1)
+                            health_counter += Health[i];
+
+                        if (i == Health.Length - 1)
+                            health_counted = true;
+                    }
+
+                }
 
                 if (mage_die)
                 {
@@ -2020,7 +2586,7 @@ namespace ZombieSlayer
                         mage_die_counter++;
 
                 }
-
+                
                 P_W = screen_w / 2;
                 P_H = screen_h / 3;
                 P_X = screen_w / 4;
@@ -2031,13 +2597,13 @@ namespace ZombieSlayer
 
             if (save)
             {
-                
+
                 gameState.mage_walk_counter = mage_walk_counter;
                 gameState.mage_run_counter = mage_run_counter;
                 gameState.mage_atk_counter = mage_atk_counter;
                 gameState.mage_die_counter = mage_die_counter;
                 gameState.HP_counter = HP_counter;
-                gameState.mage_step= mage_step;
+                gameState.mage_step = mage_step;
                 gameState.screen_w = screen_w;
                 gameState.screen_h = screen_h;
                 gameState.mage_x = mage_x;
@@ -2048,13 +2614,13 @@ namespace ZombieSlayer
                 gameState.main_counter = main_counter;
                 gameState.Arcade = Arcade;
                 gameState.Survival = Survival;
-                gameState.rx=rx;
-                gameState.Health= Health ;
+                gameState.rx = rx;
+                gameState.Health = Health;
                 gameState.map_x = map_x;
                 gameState.map_y = map_y;
                 gameState.map_w = map_w;
                 gameState.map_h = map_h;
-                gameState.mapI=mapI;
+                gameState.mapI = mapI;
                 gameState.rc = rc;
                 gameState.Z_x = Z_x;
                 gameState.Z_y = Z_y;
@@ -2072,15 +2638,15 @@ namespace ZombieSlayer
                 gameState.Yes_X = Yes_X;
                 gameState.YesNo_Y = YesNo_Y;
                 gameState.YesNo_W = YesNo_W;
-                gameState.YesNo_H=YesNo_H;
-                gameState.shottype=shottype;
-                gameState.completed=completed;
-                gameState.restart=restart;
-                gameState.potion_count=potion_count;
-                gameState.sheild_counter=sheild_counter;
+                gameState.YesNo_H = YesNo_H;
+                gameState.shottype = shottype;
+                gameState.completed = completed;
+                gameState.restart = restart;
+                gameState.potion_count = potion_count;
+                gameState.sheild_counter = sheild_counter;
                 gameState.sheild_Time = sheild_Time;
                 gameState.HP1_X = HP1_X;
-                gameState.HP2_X= HP2_X;
+                gameState.HP2_X = HP2_X;
                 gameState.HP1_Y = HP1_Y;
                 gameState.HP2_Y = HP2_Y;
                 gameState.HP3_X = HP3_X;
@@ -2089,60 +2655,68 @@ namespace ZombieSlayer
                 gameState.sheild_y = sheild_y;
                 gameState.sheild2_x = sheild2_x;
                 gameState.sheild2_y = sheild2_y;
-                gameState.zombies_1_dead=zombies_1_dead;
-                gameState.zombies_2_dead=zombies_2_dead;
+                gameState.zombies_1_dead = zombies_1_dead;
+                gameState.zombies_2_dead = zombies_2_dead;
                 gameState.skeletons_dead = skeletons_dead;
-                gameState.health_counter_i=health_counter_i;
+                gameState.health_counter_i = health_counter_i;
                 gameState.esc_counter = esc_counter;
-                gameState.sheild_count=sheild_count;
+                gameState.sheild_count = sheild_count;
                 gameState.r = r;
-                gameState.moveup=moveup;
-                gameState.movedown=movedown;
-                gameState.moveleft=moveleft;
-                gameState.moveright=moveright;
+                gameState.moveup = moveup;
+                gameState.movedown = movedown;
+                gameState.moveleft = moveleft;
+                gameState.moveright = moveright;
                 gameState.mage_die = mage_die;
                 gameState.L = L;
                 gameState.R = R;
-                gameState.run=run;
-                gameState.attack=attack;
-                gameState.DR=DR;
-                gameState.Dl=Dl;
-                gameState.health_counted=health_counted;
-                gameState.pause=pause;
+                gameState.run = run;
+                gameState.attack = attack;
+                gameState.DR = DR;
+                gameState.Dl = Dl;
+                gameState.health_counted = health_counted;
+                gameState.pause = pause;
                 gameState.LEVEL1 = LEVEL1;
-                gameState.LEVEL2=LEVEL2;
-                gameState.BOSS_LEVEL=BOSS_LEVEL;
-                gameState.new_map_1=new_map_1;
-                gameState.new_map_2=new_map_2;
-                gameState.sh=sh;
-                gameState.mouse_over_yes=mouse_over_yes;
-                gameState.mouse_over_no=mouse_over_no;
-                gameState.mouse_over_rst=mouse_over_rst;
-                gameState.mouse_over_ext=mouse_over_ext;
-                gameState.completed_2=completed_2;
+                gameState.LEVEL2 = LEVEL2;
+                gameState.BOSS_LEVEL = BOSS_LEVEL;
+                gameState.new_map_1 = new_map_1;
+                gameState.new_map_2 = new_map_2;
+                gameState.sh = sh;
+                gameState.mouse_over_yes = mouse_over_yes;
+                gameState.mouse_over_no = mouse_over_no;
+                gameState.mouse_over_rst = mouse_over_rst;
+                gameState.mouse_over_ext = mouse_over_ext;
+                gameState.completed_2 = completed_2;
 
                 gameState.zombie1_counter = zombie1_counter;
                 gameState.zombie2_counter = zombie2_counter;
                 gameState.skeleton_counter = skeleton_counter;
 
                 gameState.zombie1_time_counter = zombie1_time_counter;
-                gameState.zombie2_time_counter=zombie2_time_counter;
-                gameState.init_zombie1_time_counter=init_zombie1_time_counter;
+                gameState.zombie2_time_counter = zombie2_time_counter;
+                gameState.init_zombie1_time_counter = init_zombie1_time_counter;
                 gameState.init_zombie2_time_counter = init_zombie2_time_counter;
-                gameState.skeleton_time_counter=skeleton_time_counter;
-                gameState.init_skeleton_time_counter= init_skeleton_time_counter;
+                gameState.skeleton_time_counter = skeleton_time_counter;
+                gameState.init_skeleton_time_counter = init_skeleton_time_counter;
                 gameState.health_counter = health_counter;
                 gameState.i = i;
-                gameState.lvl_1_time=lvl_1_time;
+                gameState.lvl_1_time = lvl_1_time;
                 gameState.lvl_1_draw = lvl_1_draw;
-                gameState.lvl_2_time=lvl_2_time;
-                gameState.lvl_2_draw=lvl_2_draw;
-                gameState.boss_lvl_time=boss_lvl_time;
-                gameState.boss_lvl_draw=boss_lvl_draw;
+                gameState.lvl_2_time = lvl_2_time;
+                gameState.lvl_2_draw = lvl_2_draw;
+                gameState.boss_lvl_time = boss_lvl_time;
+                gameState.boss_lvl_draw = boss_lvl_draw;
 
                 gameState.shotx = shotx;
-                gameState.shoty=shoty;
-                gameState.shotcounter=shotcounter;
+                gameState.shoty = shoty;
+                gameState.shotcounter = shotcounter;
+
+                gameState.B_X=B_X;
+                gameState.B_Y=B_Y;
+                gameState.boss_timer=boss_timer;
+                gameState.boss_hit=boss_hit;
+                gameState.game_won=game_won;
+                gameState.title_counter=title_counter;
+                gameState.survival=survival;
 
 
                 string json = JsonConvert.SerializeObject(gameState);
@@ -2151,7 +2725,7 @@ namespace ZombieSlayer
                 save = false;
 
             }
-            if(load)
+            if (load)
             {
                 if (File.Exists("savegame.json"))
                 {
@@ -2272,6 +2846,14 @@ namespace ZombieSlayer
                     shoty = gameState.shoty;
                     shotcounter = gameState.shotcounter;
 
+                    B_X = gameState.B_X;
+                    B_Y = gameState.B_Y;
+                    boss_timer = gameState.boss_timer;
+                    boss_hit = gameState.boss_hit;
+                    game_won = gameState.game_won;
+                    title_counter = gameState.title_counter;
+                    survival = gameState.survival;
+
                 }
                 else
                 {
@@ -2280,63 +2862,62 @@ namespace ZombieSlayer
                 load = false;
             }
         }
+        
 
 
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
+            private void Form1_KeyDown(object sender, KeyEventArgs e)
             {
-                if (!mage_die)
+                if (e.KeyCode == Keys.Escape)
                 {
-                    esc_counter++;
-                    pause = true;
-                    timer1.Stop();
-                    timer2.Stop();
-                    timer3.Start();
-                    Invalidate();
-                    if (esc_counter == 2)
+                    if (!mage_die)
+                    {
+                        esc_counter++;
+                        pause = true;
+                        timer1.Stop();
+                        timer2.Stop();
+                        timer3.Start();
+                        Invalidate();
+                        if (esc_counter == 2)
+                        {
+                            Application.Exit();
+                        }
+                    }
+                    if (mage_die)
                     {
                         Application.Exit();
                     }
                 }
-                if (mage_die)
-                {
-                    Application.Exit();
-                }
-            }
 
-            if (e.KeyCode == Keys.P)
-            {
-                pause = false;
-                esc_counter = 0;
-                timer1.Start();
-                timer2.Start();
-                timer3.Stop();
-                load = true;
-            }
-            if (!mage_die)
-            {
-                if (e.KeyCode == Keys.D)
+                if (e.KeyCode == Keys.P)
                 {
-                    moveright = true;
+                    pause = false;
+                    esc_counter = 0;
+                    timer1.Start();
+                    timer2.Start();
+                    timer3.Stop();
                 }
-                if (e.KeyCode == Keys.W)
+                if (!mage_die)
                 {
-                    moveup = true;
-                }
-                if (e.KeyCode == Keys.S)
-                {
-                    movedown = true;
-                }
-                if (e.KeyCode == Keys.A)
-                {
-                    moveleft = true;
-                }
-                if (e.KeyCode == Keys.ShiftKey)
-                {
-                    run = true;
-                }
+                    if (e.KeyCode == Keys.D)
+                    {
+                        moveright = true;
+                    }
+                    if (e.KeyCode == Keys.W)
+                    {
+                        moveup = true;
+                    }
+                    if (e.KeyCode == Keys.S)
+                    {
+                        movedown = true;
+                    }
+                    if (e.KeyCode == Keys.A)
+                    {
+                        moveleft = true;
+                    }
+                    if (e.KeyCode == Keys.ShiftKey)
+                    {
+                        run = true;
+                    }
                 if (e.KeyCode == Keys.Space)
                 {
                     if (Arcade)
@@ -2351,7 +2932,7 @@ namespace ZombieSlayer
                         shotcounter++;
                         if (shotcounter > 4)
                             shotcounter = 0;
-                        F[shotcounter].Sethit(false);
+                        F[shotcounter]=new fireshot();
                     }
                     if (Survival)
                     {
@@ -2365,22 +2946,26 @@ namespace ZombieSlayer
                         shotcounter++;
                         if (shotcounter > 50)
                             shotcounter = 0;
-                        Fs[shotcounter].Sethit(false);
+                        Fs[shotcounter] = new fireshot();
                     }
 
 
                 }
+                if (e.KeyCode == Keys.K)
+                    save = true;
+                if(e.KeyCode == Keys.L)
+                    load=true;
 
-            }
+                }
 
-        }
+            } 
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.D)
             {
                 moveright = false;
-
+     
 
 
             }
@@ -2417,7 +3002,7 @@ namespace ZombieSlayer
         {
             screen_w = this.Size.Width;
             screen_h = this.Size.Height;
-
+          
             map_h = screen_h;
             map_w = screen_w;
             P_W = screen_w / 2;
@@ -2426,95 +3011,107 @@ namespace ZombieSlayer
             P_Y = screen_h / 4;
             mage_h = screen_h / 12;
             mage_w = screen_w / 12;
-
+           
             Invalidate();
 
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
-        {
+        {   
             attack = true;
+        
+                
+                 
 
-
-            if (mouse_over_yes || mouse_over_rst)
+            if (mouse_over_yes||mouse_over_rst)
             {
+                boss_timer = 40;
+                boss_hit = 0;
+       game_won = false;
 
                 timer1.Start();
-                timer2.Start();
-                timer3.Stop();
-                mage_walk_counter = 0;
-                mage_run_counter = 0;
-                mage_atk_counter = 0;
-                mage_die_counter = 0;
-                HP_counter = 0;
-                Health = new int[100];
-                shottype = 1;
-                mapI = 0;
-                zombie2_counter = 0;
-                skeleton_counter = 0;
-                potion_count = 0;
-                sheild_counter = 0;
-                sheild_Time = 100;
-                zombie1_counter = 0;
-                zombies_1_dead = 0;
-                zombies_2_dead = 0;
-                skeletons_dead = 0;
-                health_counter_i = 0;
-                esc_counter = 0;
-                sheild_count = 0;
-                restart = true;
-                moveup = false;
-                moveleft = false;
-                moveright = false;
-                mage_die = false;
-                L = false;
-                R = false;
-                run = false;
-                attack = false;
-                DR = false;
-                Dl = false;
-                health_counted = false;
-                pause = false;
-                LEVEL1 = false;
-                LEVEL2 = false;
-                BOSS_LEVEL = false;
-                Arcade = false;
-                Survival = false;
-                Main_Menu = false;
-                new_map_1 = false;
-                sh = false;
-                mouse_over_yes = false;
-                mouse_over_no = false;
-                mouse_over_rst = false;
-                lvl_1_draw = false;
-                lvl_1_time = 60;
-                init_zombie1_time_counter = 80;
-                init_zombie2_time_counter = 80;
-                HP_counter = 0;
-                new_map_2 = false;
-                init_skeleton_time_counter = 100;
-                health_counter = 0;
-                lvl_2_time = 60;
-                lvl_2_draw = false;
-                boss_lvl_draw = false;
-                boss_lvl_time = 40;
-                HP_1 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                HP_2 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                HP_3 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                sheild = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
-                sheild2 = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
-                zombie = new Zombie(Z_x, Z_y, mage_w, mage_h);
+                    timer2.Start();
+                    timer3.Stop();
+                MM_sound = 0;
+                boss_sound = 0;
+                LVL_sound = 0;
+                    mage_walk_counter = 0;
+                    mage_run_counter = 0;
+                    mage_atk_counter = 0;
+                    mage_die_counter = 0;
+                    HP_counter = 0;
+                    Health = new int[100];
+                   shottype = 1;
+                    mapI = 0;
+                    zombie2_counter = 0;
+                    skeleton_counter = 0;
+                    potion_count = 0;
+                    sheild_counter = 0;
+                    sheild_Time = 100;
+                    zombie1_counter = 0;
+                    zombies_1_dead = 0;
+                    zombies_2_dead = 0;
+                    skeletons_dead = 0;
+                    health_counter_i = 0;
+                    esc_counter = 0;
+                    sheild_count = 0;
+                    restart = true;
+                    moveup = false;
+                    moveleft = false;
+                    moveright = false;
+                    mage_die = false;
+                    L = false;
+                    R = false;
+                    run = false;
+                    attack = false;
+                    DR = false;
+                    Dl = false;
+                    health_counted = false;
+                    pause = false;
+                    LEVEL1 = false;
+                    LEVEL2 = false;
+                    BOSS_LEVEL = false;
+                    Arcade = false;
+                    Survival = false;
+                    Main_Menu = false;
+                    new_map_1 = false;
+                    sh = false;
+                    mouse_over_yes = false;
+                    mouse_over_no = false;
+                    mouse_over_rst = false;
+                    lvl_1_draw = false;
+                    lvl_1_time = 60;
+                    init_zombie1_time_counter = 80;
+                    init_zombie2_time_counter = 80;
+                    HP_counter = 0;
+                    new_map_2 = false;
+                    init_skeleton_time_counter = 100;
+                    health_counter = 0;
+                    lvl_2_time = 60;
+                    lvl_2_draw = false;
+                    boss_lvl_draw=false;
+                    boss_lvl_time = 40;
+                pu_cntr = 0;
+                show_powerup = 0;
+                    HP_1 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                    HP_2 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                    HP_3 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                    sheild = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
+                    sheild2 = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
+                    zombie = new Zombie(Z_x, Z_y, mage_w, mage_h);
 
-
+                zombies = new Zombie[0];
+                skeletonss = new Skeleton[0];
+                survival = 0;
                 zombie1_time_counter = init_zombie1_time_counter;
-                zombie2_time_counter = init_zombie2_time_counter;
-                skeleton_time_counter = init_skeleton_time_counter;
-
-
+                    zombie2_time_counter = init_zombie2_time_counter;
+                    skeleton_time_counter = init_skeleton_time_counter;
+                
+           
 
 
             }
-            if (mouse_over_no || mouse_over_ext)
+            if (mouse_over_no||mouse_over_ext)
             {
                 Application.Exit();
             }
@@ -2522,61 +3119,61 @@ namespace ZombieSlayer
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-
+         
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (Main_Menu && Arcade) {
-                if (!LEVEL1)
+            if (Main_Menu && Arcade) { 
+            if (!LEVEL1)
+            {
+                HP1_X = HP_1.GetX();
+                HP1_Y = HP_1.GetY();
+                HP_counter++;
+                if (potion_count < 1)
                 {
-                    HP1_X = HP_1.GetX();
-                    HP1_Y = HP_1.GetY();
-                    HP_counter++;
-                    if (potion_count < 1)
+
+                    if (HP_counter > 350 && !HP_1.ready)
                     {
-
-                        if (HP_counter > 350 && !HP_1.ready)
-                        {
-                            HP_1.ready = true;
-                            HP_1.took = false;
-
-                        }
-                        if (HP_1.ready && !HP_1.took)
-                        {
-                            if (Math.Abs(HP1_X - mage_x) < mage_w / 3)
-                            {
-                                if (Math.Abs(HP1_Y - mage_y) < mage_h / 3)
-                                {
-                                    HP_1.took = true;
-                                }
-                            }
-
-                        }
-
-                        if (HP_1.ready && HP_1.took)
-                        {
-                            for (int h = 0; h < Health.Length; h++)
-                            {
-                                health_counter = 0;
-                                Health[h] = 0;
-                                if (h == Health.Length - 1)
-                                {
-                                    HP_1.ready = false;
-                                    HP_1.took = false;
-                                    potion_count++;
-                                    HP_counter = 0;
-                                }
-
-                            }
-                        }
-
-
+                        HP_1.ready = true;
+                        HP_1.took = false;
 
                     }
-                }
+                    if (HP_1.ready && !HP_1.took)
+                    {
+                        if (Math.Abs(HP1_X - mage_x) < mage_w / 3)
+                        {
+                            if (Math.Abs(HP1_Y - mage_y) < mage_h / 3)
+                            {
+                                HP_1.took = true;
+                            }
+                        }
 
-                if (LEVEL1 && !LEVEL2 && new_map_1)
+                    }
+
+                    if (HP_1.ready && HP_1.took)
+                    {
+                        for (int h = 0; h < Health.Length; h++)
+                        {
+                            health_counter = 0;
+                            Health[h] = 0;
+                            if (h == Health.Length - 1)
+                            {
+                                HP_1.ready = false;
+                                HP_1.took = false;
+                                potion_count++;
+                                HP_counter = 0;
+                            }
+
+                        }
+                    }
+
+
+
+                }
+            }
+
+                if (LEVEL1 && !LEVEL2&&new_map_1)
                 {
                     HP2_X = HP_2.GetX();
                     HP2_Y = HP_2.GetY();
@@ -2642,7 +3239,7 @@ namespace ZombieSlayer
                                 }
                             }
 
-
+                           
 
                         }
 
@@ -2667,19 +3264,37 @@ namespace ZombieSlayer
 
                     }
                 }
-                if (LEVEL2 && new_map_2)
+                if (LEVEL2&&new_map_2)
                 {
                     HP3_X = HP_3.GetX();
                     HP3_Y = HP_3.GetY();
                     sheild_x = sheild2.GetX();
                     sheild_y = sheild2.GetY();
-                    sheild_Time = 300;
-
+                 
+                    show_powerup++;
+                   
                     HP_counter++;
                     sheild_counter++;
+                    if (show_powerup > 150)
+                    {
+                        PU.ready = true;
+                        sheild2.took = true;
+                    }
+                    if (PU.ready && !PU.took)
+                    {
+                        if (Math.Abs(PU.GetX() - mage_x) < mage_w/3)
+                        {
+                            if (Math.Abs(PU.GetY() - mage_y) < mage_h/3)
+                            {
+                               PU.took = true;
+                                sheild_counter = 0;
+                                sheild_Time = 300;
+                            }
+                        }
+                    }
                     if (sheild_count < 3)
                     {
-
+                      
                         if (sheild_counter > 350 && !sheild2.ready)
                         {
                             sheild2.ready = true;
@@ -2692,7 +3307,7 @@ namespace ZombieSlayer
                                 if (Math.Abs(sheild_y - mage_y) < mage_h / 3)
                                 {
                                     sheild2.took = true;
-
+                              
                                 }
                             }
                         }
@@ -2721,7 +3336,7 @@ namespace ZombieSlayer
                     if (potion_count < 3)
                     {
 
-                        if (HP_counter > 350 && !HP_3.ready)
+                        if (HP_counter >350 && !HP_3.ready)
                         {
                             HP_3.ready = true;
                             HP_3.took = false;
@@ -2755,31 +3370,32 @@ namespace ZombieSlayer
                                     HP_3.SetX(r.Next(0, screen_w));
                                     HP_3.SetY(r.Next(0, screen_h));
                                 }
-
+                                
                             }
-
+                   
                         }
 
                     }
                 }
             }
-
-
+            
+           
         }
 
         private void Mouse_Hover(object sender, EventArgs e)
         {
-
+            
         }
 
         private void timer3_Tick(object sender, EventArgs e)
         {
-            if (pause && (Arcade || Survival))
+           
+            if ((pause)&&(Arcade||Survival))
             {
-
-
-
-                if ((Math.Abs((P_X + P_W / 7) - MousePosition.X)) < P_W / 3 && Math.Abs((P_Y + P_H - (P_H / 6)) - MousePosition.Y) < (P_H / 4) && MousePosition.X > (P_X + P_W / 7) && MousePosition.Y > P_Y + P_H - (P_H / 6))
+           
+         
+                
+                if ((Math.Abs((P_X + P_W / 7) - MousePosition.X)) < P_W / 3 && Math.Abs((P_Y + P_H - (P_H / 6)) - MousePosition.Y) < (P_H / 4) && MousePosition.X >( P_X + P_W / 7) && MousePosition.Y > P_Y + P_H - (P_H / 6))
                 {
                     mouse_over_rst = true;
                     mouse_over_ext = false;
@@ -2789,22 +3405,21 @@ namespace ZombieSlayer
                 {
                     mouse_over_ext = true;
                     mouse_over_rst = false;
-
+              
                 }
                 else
                 {
                     mouse_over_rst = false;
                     mouse_over_ext = false;
-
+                 
                 }
             }
-            Invalidate();
-        }
+            Invalidate(); }
 
        
     }
    
-}
+        }
         
     
 
