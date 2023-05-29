@@ -7,6 +7,8 @@ using SkeletonSlayer;
 using System.Threading;
 using System.Diagnostics;
 using System.Media;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ZombieSlayer
 {
@@ -22,6 +24,8 @@ namespace ZombieSlayer
         SoundPlayer Boss = new System.Media.SoundPlayer(@"sounds\\MusicBossFight.wav");
         SoundPlayer hit = new System.Media.SoundPlayer(@"sounds\\Sound_Hit.wav");
         SoundPlayer fire = new System.Media.SoundPlayer(@"sounds\\sound_fireshot.wav");
+
+        GameState gameState = new GameState();
 
 
         Image[] map = { Image.FromFile("images\\map\\map1.png"), Image.FromFile("images\\map\\map1_1.png"), Image.FromFile("images\\map\\map2.png"), Image.FromFile("images\\map\\map3.png"), Image.FromFile("images\\map\\map3_2.png"), Image.FromFile("images\\map\\map3_3.png") };
@@ -173,7 +177,12 @@ namespace ZombieSlayer
         int shotx;
         int shoty;
         int shotcounter = 0;
-        
+
+
+
+        bool save = false;
+        bool load = false;
+
 
         public Form1()
         {
@@ -201,13 +210,13 @@ namespace ZombieSlayer
                 g.DrawImage(SURVIVAL, (screen_w / 3) * 2, screen_h / 2 - screen_h / 20, screen_w / 10, screen_h / 10);
                 g.DrawImage(Gate, screen_w / 15, (screen_h / 2 - screen_h / 20) + screen_h / 10, screen_w / 15, screen_h / 10);
                 g.DrawImage(Ext_Y, screen_w / 18, ((screen_h / 2 - screen_h / 20) + screen_h / 10) - screen_h / 10, screen_w / 10, screen_h / 10);
-               
+
 
             }
             else
             {
                 g.DrawImage(map[mapI], map_x, map_y, map_w, map_h);
-              
+
             }
             //g.DrawImage(zombie_R[i ++], map_x, map_y, mage_w, mage_h);
 
@@ -446,7 +455,7 @@ namespace ZombieSlayer
                 if (mapI == 0)
                 {
                     g.DrawImage(map[mapI + 1], map_x, map_y, map_w, map_h);
-                   
+
                 }
                 else if (mapI == 3 || mapI == 4)
                 {
@@ -497,7 +506,7 @@ namespace ZombieSlayer
             }
             if (lvl_1_draw && !pause)
             {
-                g.DrawImage(LVL_1, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);                                                                                                                               
+                g.DrawImage(LVL_1, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);
             }
             if (completed || completed_2)
             {
@@ -507,7 +516,7 @@ namespace ZombieSlayer
             if (lvl_2_draw && !pause)
             {
                 g.DrawImage(LVL_2, screen_w / 4, screen_h / 6, screen_w / 2, screen_h / 2);
-                  
+
             }
             if (boss_lvl_draw && !pause)
             {
@@ -593,7 +602,7 @@ namespace ZombieSlayer
             zombies = new Zombie[0];
             skeletonss = new Skeleton[0];
             Fs = new fireshot[50];
-            for(int i = 0; i < 50; i++)
+            for (int i = 0; i < 50; i++)
             {
                 Fs[i] = new fireshot();
             }
@@ -1705,11 +1714,11 @@ namespace ZombieSlayer
                         if (!mage_die)
                         {
 
-                            if (mage_y < mage_h/3 && mapI == 2)
+                            if (mage_y < mage_h / 3 && mapI == 2)
                             {
                                 health_counter = 0;
                                 mapI = 3;
-                                mage_y = screen_h+mage_h/2;
+                                mage_y = screen_h + mage_h / 2;
                                 new_map_2 = true;
                                 for (int o = 0; o < Health.Length; o++)
                                 {
@@ -2011,70 +2020,323 @@ namespace ZombieSlayer
                         mage_die_counter++;
 
                 }
-                
+
                 P_W = screen_w / 2;
                 P_H = screen_h / 3;
                 P_X = screen_w / 4;
                 P_Y = screen_h / 4;
                 Invalidate();
             }
-        }
-        
 
 
-            private void Form1_KeyDown(object sender, KeyEventArgs e)
+            if (save)
             {
-                if (e.KeyCode == Keys.Escape)
+                
+                gameState.mage_walk_counter = mage_walk_counter;
+                gameState.mage_run_counter = mage_run_counter;
+                gameState.mage_atk_counter = mage_atk_counter;
+                gameState.mage_die_counter = mage_die_counter;
+                gameState.HP_counter = HP_counter;
+                gameState.mage_step= mage_step;
+                gameState.screen_w = screen_w;
+                gameState.screen_h = screen_h;
+                gameState.mage_x = mage_x;
+                gameState.mage_y = mage_y;
+                gameState.mage_h = mage_h;
+                gameState.mage_w = mage_w;
+                gameState.Main_Menu = Main_Menu;
+                gameState.main_counter = main_counter;
+                gameState.Arcade = Arcade;
+                gameState.Survival = Survival;
+                gameState.rx=rx;
+                gameState.Health= Health ;
+                gameState.map_x = map_x;
+                gameState.map_y = map_y;
+                gameState.map_w = map_w;
+                gameState.map_h = map_h;
+                gameState.mapI=mapI;
+                gameState.rc = rc;
+                gameState.Z_x = Z_x;
+                gameState.Z_y = Z_y;
+                gameState.S_x = S_x;
+                gameState.S_y = S_y;
+                gameState.P_X = P_X;
+                gameState.P_Y = P_Y;
+                gameState.P_W = P_W;
+                gameState.P_H = P_H;
+                gameState.GO_X = GO_X;
+                gameState.GO_Y = GO_Y;
+                gameState.GO_W = GO_W;
+                gameState.GO_H = GO_H;
+                gameState.No_X = No_X;
+                gameState.Yes_X = Yes_X;
+                gameState.YesNo_Y = YesNo_Y;
+                gameState.YesNo_W = YesNo_W;
+                gameState.YesNo_H=YesNo_H;
+                gameState.shottype=shottype;
+                gameState.completed=completed;
+                gameState.restart=restart;
+                gameState.potion_count=potion_count;
+                gameState.sheild_counter=sheild_counter;
+                gameState.sheild_Time = sheild_Time;
+                gameState.HP1_X = HP1_X;
+                gameState.HP2_X= HP2_X;
+                gameState.HP1_Y = HP1_Y;
+                gameState.HP2_Y = HP2_Y;
+                gameState.HP3_X = HP3_X;
+                gameState.HP3_Y = HP3_Y;
+                gameState.sheild_x = sheild_x;
+                gameState.sheild_y = sheild_y;
+                gameState.sheild2_x = sheild2_x;
+                gameState.sheild2_y = sheild2_y;
+                gameState.zombies_1_dead=zombies_1_dead;
+                gameState.zombies_2_dead=zombies_2_dead;
+                gameState.skeletons_dead = skeletons_dead;
+                gameState.health_counter_i=health_counter_i;
+                gameState.esc_counter = esc_counter;
+                gameState.sheild_count=sheild_count;
+                gameState.r = r;
+                gameState.moveup=moveup;
+                gameState.movedown=movedown;
+                gameState.moveleft=moveleft;
+                gameState.moveright=moveright;
+                gameState.mage_die = mage_die;
+                gameState.L = L;
+                gameState.R = R;
+                gameState.run=run;
+                gameState.attack=attack;
+                gameState.DR=DR;
+                gameState.Dl=Dl;
+                gameState.health_counted=health_counted;
+                gameState.pause=pause;
+                gameState.LEVEL1 = LEVEL1;
+                gameState.LEVEL2=LEVEL2;
+                gameState.BOSS_LEVEL=BOSS_LEVEL;
+                gameState.new_map_1=new_map_1;
+                gameState.new_map_2=new_map_2;
+                gameState.sh=sh;
+                gameState.mouse_over_yes=mouse_over_yes;
+                gameState.mouse_over_no=mouse_over_no;
+                gameState.mouse_over_rst=mouse_over_rst;
+                gameState.mouse_over_ext=mouse_over_ext;
+                gameState.completed_2=completed_2;
+
+                gameState.zombie1_counter = zombie1_counter;
+                gameState.zombie2_counter = zombie2_counter;
+                gameState.skeleton_counter = skeleton_counter;
+
+                gameState.zombie1_time_counter = zombie1_time_counter;
+                gameState.zombie2_time_counter=zombie2_time_counter;
+                gameState.init_zombie1_time_counter=init_zombie1_time_counter;
+                gameState.init_zombie2_time_counter = init_zombie2_time_counter;
+                gameState.skeleton_time_counter=skeleton_time_counter;
+                gameState.init_skeleton_time_counter= init_skeleton_time_counter;
+                gameState.health_counter = health_counter;
+                gameState.i = i;
+                gameState.lvl_1_time=lvl_1_time;
+                gameState.lvl_1_draw = lvl_1_draw;
+                gameState.lvl_2_time=lvl_2_time;
+                gameState.lvl_2_draw=lvl_2_draw;
+                gameState.boss_lvl_time=boss_lvl_time;
+                gameState.boss_lvl_draw=boss_lvl_draw;
+
+                gameState.shotx = shotx;
+                gameState.shoty=shoty;
+                gameState.shotcounter=shotcounter;
+
+
+                string json = JsonConvert.SerializeObject(gameState);
+                File.WriteAllText("savegame.json", json);
+
+                save = false;
+
+            }
+            if(load)
+            {
+                if (File.Exists("savegame.json"))
                 {
-                    if (!mage_die)
-                    {
-                        esc_counter++;
-                        pause = true;
-                        timer1.Stop();
-                        timer2.Stop();
-                        timer3.Start();
-                        Invalidate();
-                        if (esc_counter == 2)
-                        {
-                            Application.Exit();
-                        }
-                    }
-                    if (mage_die)
+                    string json = File.ReadAllText("savegame.json");
+                    GameState gameState = JsonConvert.DeserializeObject<GameState>(json);
+
+                    // Use the gameState object to restore the game state
+
+                    mage_walk_counter = gameState.mage_walk_counter;
+                    mage_run_counter = gameState.mage_run_counter;
+                    mage_atk_counter = gameState.mage_atk_counter;
+                    mage_die_counter = gameState.mage_die_counter;
+                    HP_counter = gameState.HP_counter;
+                    mage_step = gameState.mage_step;
+                    screen_w = gameState.screen_w;
+                    screen_h = gameState.screen_h;
+                    mage_x = gameState.mage_x;
+                    mage_y = gameState.mage_y;
+                    mage_h = gameState.mage_h;
+                    mage_w = gameState.mage_w;
+                    Main_Menu = gameState.Main_Menu;
+                    main_counter = gameState.main_counter;
+                    Arcade = gameState.Arcade;
+                    Survival = gameState.Survival;
+                    rx = gameState.rx;
+                    Health = gameState.Health;
+                    map_x = gameState.map_x;
+                    map_y = gameState.map_y;
+                    map_w = gameState.map_w;
+                    map_h = gameState.map_h;
+                    mapI = gameState.mapI;
+                    rc = gameState.rc;
+                    Z_x = gameState.Z_x;
+                    Z_y = gameState.Z_y;
+                    S_x = gameState.S_x;
+                    S_y = gameState.S_y;
+                    P_X = gameState.P_X;
+                    P_Y = gameState.P_Y;
+                    P_W = gameState.P_W;
+                    P_H = gameState.P_H;
+                    GO_X = gameState.GO_X;
+                    GO_Y = gameState.GO_Y;
+                    GO_W = gameState.GO_W;
+                    GO_H = gameState.GO_H;
+                    No_X = gameState.No_X;
+                    Yes_X = gameState.Yes_X;
+                    YesNo_Y = gameState.YesNo_Y;
+                    YesNo_W = gameState.YesNo_W;
+                    YesNo_H = gameState.YesNo_H;
+                    shottype = gameState.shottype;
+                    completed = gameState.completed;
+                    restart = gameState.restart;
+                    potion_count = gameState.potion_count;
+                    sheild_counter = gameState.sheild_counter;
+                    sheild_Time = gameState.sheild_Time;
+                    HP1_X = gameState.HP1_X;
+                    HP2_X = gameState.HP2_X;
+                    HP1_Y = gameState.HP1_Y;
+                    HP2_Y = gameState.HP2_Y;
+                    HP3_X = gameState.HP3_X;
+                    HP3_Y = gameState.HP3_Y;
+                    sheild_x = gameState.sheild_x;
+                    sheild_y = gameState.sheild_y;
+                    sheild2_x = gameState.sheild2_x;
+                    sheild2_y = gameState.sheild2_y;
+                    zombies_1_dead = gameState.zombies_1_dead;
+                    zombies_2_dead = gameState.zombies_2_dead;
+                    skeletons_dead = gameState.skeletons_dead;
+                    health_counter_i = gameState.health_counter_i;
+                    esc_counter = gameState.esc_counter;
+                    sheild_count = gameState.sheild_count;
+                    r = gameState.r;
+                    moveup = gameState.moveup;
+                    movedown = gameState.movedown;
+                    moveleft = gameState.moveleft;
+                    moveright = gameState.moveright;
+                    mage_die = gameState.mage_die;
+                    L = gameState.L;
+                    R = gameState.R;
+                    run = gameState.run;
+                    attack = gameState.attack;
+                    DR = gameState.DR;
+                    Dl = gameState.Dl;
+                    health_counted = gameState.health_counted;
+                    pause = gameState.pause;
+                    LEVEL1 = gameState.LEVEL1;
+                    LEVEL2 = gameState.LEVEL2;
+                    BOSS_LEVEL = gameState.BOSS_LEVEL;
+                    new_map_1 = gameState.new_map_1;
+                    new_map_2 = gameState.new_map_2;
+                    sh = gameState.sh;
+                    mouse_over_yes = gameState.mouse_over_yes;
+                    mouse_over_no = gameState.mouse_over_no;
+                    mouse_over_rst = gameState.mouse_over_rst;
+                    mouse_over_ext = gameState.mouse_over_ext;
+                    completed_2 = gameState.completed_2;
+
+                    zombie1_counter = gameState.zombie1_counter;
+                    zombie2_counter = gameState.zombie2_counter;
+                    skeleton_counter = gameState.skeleton_counter;
+
+                    zombie1_time_counter = gameState.zombie1_time_counter;
+                    zombie2_time_counter = gameState.zombie2_time_counter;
+                    init_zombie1_time_counter = gameState.init_zombie1_time_counter;
+                    init_zombie2_time_counter = gameState.init_zombie2_time_counter;
+                    skeleton_time_counter = gameState.skeleton_time_counter;
+                    init_skeleton_time_counter = gameState.init_skeleton_time_counter;
+                    health_counter = gameState.health_counter;
+                    i = gameState.i;
+                    lvl_1_time = gameState.lvl_1_time;
+                    lvl_1_draw = gameState.lvl_1_draw;
+                    lvl_2_time = gameState.lvl_2_time;
+                    lvl_2_draw = gameState.lvl_2_draw;
+                    boss_lvl_time = gameState.boss_lvl_time;
+                    boss_lvl_draw = gameState.boss_lvl_draw;
+
+                    shotx = gameState.shotx;
+                    shoty = gameState.shoty;
+                    shotcounter = gameState.shotcounter;
+
+                }
+                else
+                {
+                    // Handle the case when no saved game exists
+                }
+                load = false;
+            }
+        }
+
+
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                if (!mage_die)
+                {
+                    esc_counter++;
+                    pause = true;
+                    timer1.Stop();
+                    timer2.Stop();
+                    timer3.Start();
+                    Invalidate();
+                    if (esc_counter == 2)
                     {
                         Application.Exit();
                     }
                 }
-
-                if (e.KeyCode == Keys.P)
+                if (mage_die)
                 {
-                    pause = false;
-                    esc_counter = 0;
-                    timer1.Start();
-                    timer2.Start();
-                    timer3.Stop();
+                    Application.Exit();
                 }
-                if (!mage_die)
+            }
+
+            if (e.KeyCode == Keys.P)
+            {
+                pause = false;
+                esc_counter = 0;
+                timer1.Start();
+                timer2.Start();
+                timer3.Stop();
+                load = true;
+            }
+            if (!mage_die)
+            {
+                if (e.KeyCode == Keys.D)
                 {
-                    if (e.KeyCode == Keys.D)
-                    {
-                        moveright = true;
-                    }
-                    if (e.KeyCode == Keys.W)
-                    {
-                        moveup = true;
-                    }
-                    if (e.KeyCode == Keys.S)
-                    {
-                        movedown = true;
-                    }
-                    if (e.KeyCode == Keys.A)
-                    {
-                        moveleft = true;
-                    }
-                    if (e.KeyCode == Keys.ShiftKey)
-                    {
-                        run = true;
-                    }
+                    moveright = true;
+                }
+                if (e.KeyCode == Keys.W)
+                {
+                    moveup = true;
+                }
+                if (e.KeyCode == Keys.S)
+                {
+                    movedown = true;
+                }
+                if (e.KeyCode == Keys.A)
+                {
+                    moveleft = true;
+                }
+                if (e.KeyCode == Keys.ShiftKey)
+                {
+                    run = true;
+                }
                 if (e.KeyCode == Keys.Space)
                 {
                     if (Arcade)
@@ -2109,16 +2371,16 @@ namespace ZombieSlayer
 
                 }
 
-                }
+            }
 
-            } 
+        }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.D)
             {
                 moveright = false;
-     
+
 
 
             }
@@ -2155,7 +2417,7 @@ namespace ZombieSlayer
         {
             screen_w = this.Size.Width;
             screen_h = this.Size.Height;
-          
+
             map_h = screen_h;
             map_w = screen_w;
             P_W = screen_w / 2;
@@ -2164,95 +2426,95 @@ namespace ZombieSlayer
             P_Y = screen_h / 4;
             mage_h = screen_h / 12;
             mage_w = screen_w / 12;
-           
+
             Invalidate();
 
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
-        {   
+        {
             attack = true;
-          
 
-            if (mouse_over_yes||mouse_over_rst)
+
+            if (mouse_over_yes || mouse_over_rst)
             {
-                
-                    timer1.Start();
-                    timer2.Start();
-                    timer3.Stop();
-                    mage_walk_counter = 0;
-                    mage_run_counter = 0;
-                    mage_atk_counter = 0;
-                    mage_die_counter = 0;
-                    HP_counter = 0;
-                    Health = new int[100];
-                   shottype = 1;
-                    mapI = 0;
-                    zombie2_counter = 0;
-                    skeleton_counter = 0;
-                    potion_count = 0;
-                    sheild_counter = 0;
-                    sheild_Time = 100;
-                    zombie1_counter = 0;
-                    zombies_1_dead = 0;
-                    zombies_2_dead = 0;
-                    skeletons_dead = 0;
-                    health_counter_i = 0;
-                    esc_counter = 0;
-                    sheild_count = 0;
-                    restart = true;
-                    moveup = false;
-                    moveleft = false;
-                    moveright = false;
-                    mage_die = false;
-                    L = false;
-                    R = false;
-                    run = false;
-                    attack = false;
-                    DR = false;
-                    Dl = false;
-                    health_counted = false;
-                    pause = false;
-                    LEVEL1 = false;
-                    LEVEL2 = false;
-                    BOSS_LEVEL = false;
-                    Arcade = false;
-                    Survival = false;
-                    Main_Menu = false;
-                    new_map_1 = false;
-                    sh = false;
-                    mouse_over_yes = false;
-                    mouse_over_no = false;
-                    mouse_over_rst = false;
-                    lvl_1_draw = false;
-                    lvl_1_time = 60;
-                    init_zombie1_time_counter = 80;
-                    init_zombie2_time_counter = 80;
-                    HP_counter = 0;
-                    new_map_2 = false;
-                    init_skeleton_time_counter = 100;
-                    health_counter = 0;
-                    lvl_2_time = 60;
-                    lvl_2_draw = false;
-                    boss_lvl_draw=false;
-                    boss_lvl_time = 40;
-                    HP_1 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                    HP_2 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                    HP_3 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
-                    sheild = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
-                    sheild2 = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
-                    zombie = new Zombie(Z_x, Z_y, mage_w, mage_h);
+
+                timer1.Start();
+                timer2.Start();
+                timer3.Stop();
+                mage_walk_counter = 0;
+                mage_run_counter = 0;
+                mage_atk_counter = 0;
+                mage_die_counter = 0;
+                HP_counter = 0;
+                Health = new int[100];
+                shottype = 1;
+                mapI = 0;
+                zombie2_counter = 0;
+                skeleton_counter = 0;
+                potion_count = 0;
+                sheild_counter = 0;
+                sheild_Time = 100;
+                zombie1_counter = 0;
+                zombies_1_dead = 0;
+                zombies_2_dead = 0;
+                skeletons_dead = 0;
+                health_counter_i = 0;
+                esc_counter = 0;
+                sheild_count = 0;
+                restart = true;
+                moveup = false;
+                moveleft = false;
+                moveright = false;
+                mage_die = false;
+                L = false;
+                R = false;
+                run = false;
+                attack = false;
+                DR = false;
+                Dl = false;
+                health_counted = false;
+                pause = false;
+                LEVEL1 = false;
+                LEVEL2 = false;
+                BOSS_LEVEL = false;
+                Arcade = false;
+                Survival = false;
+                Main_Menu = false;
+                new_map_1 = false;
+                sh = false;
+                mouse_over_yes = false;
+                mouse_over_no = false;
+                mouse_over_rst = false;
+                lvl_1_draw = false;
+                lvl_1_time = 60;
+                init_zombie1_time_counter = 80;
+                init_zombie2_time_counter = 80;
+                HP_counter = 0;
+                new_map_2 = false;
+                init_skeleton_time_counter = 100;
+                health_counter = 0;
+                lvl_2_time = 60;
+                lvl_2_draw = false;
+                boss_lvl_draw = false;
+                boss_lvl_time = 40;
+                HP_1 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                HP_2 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                HP_3 = new Healing_Potion(r.Next(0, screen_w), r.Next(0, screen_h), mage_w, mage_h);
+                sheild = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
+                sheild2 = new Sheild(r.Next(0, screen_w), r.Next(0, screen_h), mage_w / 4, mage_w / 4);
+                zombie = new Zombie(Z_x, Z_y, mage_w, mage_h);
 
 
-                    zombie1_time_counter = init_zombie1_time_counter;
-                    zombie2_time_counter = init_zombie2_time_counter;
-                    skeleton_time_counter = init_skeleton_time_counter;
-                
-           
+                zombie1_time_counter = init_zombie1_time_counter;
+                zombie2_time_counter = init_zombie2_time_counter;
+                skeleton_time_counter = init_skeleton_time_counter;
+
+
 
 
             }
-            if (mouse_over_no||mouse_over_ext)
+            if (mouse_over_no || mouse_over_ext)
             {
                 Application.Exit();
             }
@@ -2265,56 +2527,56 @@ namespace ZombieSlayer
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (Main_Menu && Arcade) { 
-            if (!LEVEL1)
-            {
-                HP1_X = HP_1.GetX();
-                HP1_Y = HP_1.GetY();
-                HP_counter++;
-                if (potion_count < 1)
+            if (Main_Menu && Arcade) {
+                if (!LEVEL1)
                 {
-
-                    if (HP_counter > 350 && !HP_1.ready)
+                    HP1_X = HP_1.GetX();
+                    HP1_Y = HP_1.GetY();
+                    HP_counter++;
+                    if (potion_count < 1)
                     {
-                        HP_1.ready = true;
-                        HP_1.took = false;
 
-                    }
-                    if (HP_1.ready && !HP_1.took)
-                    {
-                        if (Math.Abs(HP1_X - mage_x) < mage_w / 3)
+                        if (HP_counter > 350 && !HP_1.ready)
                         {
-                            if (Math.Abs(HP1_Y - mage_y) < mage_h / 3)
-                            {
-                                HP_1.took = true;
-                            }
+                            HP_1.ready = true;
+                            HP_1.took = false;
+
                         }
-
-                    }
-
-                    if (HP_1.ready && HP_1.took)
-                    {
-                        for (int h = 0; h < Health.Length; h++)
+                        if (HP_1.ready && !HP_1.took)
                         {
-                            health_counter = 0;
-                            Health[h] = 0;
-                            if (h == Health.Length - 1)
+                            if (Math.Abs(HP1_X - mage_x) < mage_w / 3)
                             {
-                                HP_1.ready = false;
-                                HP_1.took = false;
-                                potion_count++;
-                                HP_counter = 0;
+                                if (Math.Abs(HP1_Y - mage_y) < mage_h / 3)
+                                {
+                                    HP_1.took = true;
+                                }
                             }
 
                         }
+
+                        if (HP_1.ready && HP_1.took)
+                        {
+                            for (int h = 0; h < Health.Length; h++)
+                            {
+                                health_counter = 0;
+                                Health[h] = 0;
+                                if (h == Health.Length - 1)
+                                {
+                                    HP_1.ready = false;
+                                    HP_1.took = false;
+                                    potion_count++;
+                                    HP_counter = 0;
+                                }
+
+                            }
+                        }
+
+
+
                     }
-
-
-
                 }
-            }
 
-                if (LEVEL1 && !LEVEL2&&new_map_1)
+                if (LEVEL1 && !LEVEL2 && new_map_1)
                 {
                     HP2_X = HP_2.GetX();
                     HP2_Y = HP_2.GetY();
@@ -2380,7 +2642,7 @@ namespace ZombieSlayer
                                 }
                             }
 
-                           
+
 
                         }
 
@@ -2405,7 +2667,7 @@ namespace ZombieSlayer
 
                     }
                 }
-                if (LEVEL2&&new_map_2)
+                if (LEVEL2 && new_map_2)
                 {
                     HP3_X = HP_3.GetX();
                     HP3_Y = HP_3.GetY();
@@ -2417,7 +2679,7 @@ namespace ZombieSlayer
                     sheild_counter++;
                     if (sheild_count < 3)
                     {
-                      
+
                         if (sheild_counter > 350 && !sheild2.ready)
                         {
                             sheild2.ready = true;
@@ -2430,7 +2692,7 @@ namespace ZombieSlayer
                                 if (Math.Abs(sheild_y - mage_y) < mage_h / 3)
                                 {
                                     sheild2.took = true;
-                              
+
                                 }
                             }
                         }
@@ -2459,7 +2721,7 @@ namespace ZombieSlayer
                     if (potion_count < 3)
                     {
 
-                        if (HP_counter >350 && !HP_3.ready)
+                        if (HP_counter > 350 && !HP_3.ready)
                         {
                             HP_3.ready = true;
                             HP_3.took = false;
@@ -2493,31 +2755,31 @@ namespace ZombieSlayer
                                     HP_3.SetX(r.Next(0, screen_w));
                                     HP_3.SetY(r.Next(0, screen_h));
                                 }
-                                
+
                             }
-                   
+
                         }
 
                     }
                 }
             }
-            
-           
+
+
         }
 
         private void Mouse_Hover(object sender, EventArgs e)
         {
-            
+
         }
 
         private void timer3_Tick(object sender, EventArgs e)
         {
-            if (pause&&(Arcade||Survival))
+            if (pause && (Arcade || Survival))
             {
-           
-         
 
-                if ((Math.Abs((P_X + P_W / 7) - MousePosition.X)) < P_W / 3 && Math.Abs((P_Y + P_H - (P_H / 6)) - MousePosition.Y) < (P_H / 4) && MousePosition.X >( P_X + P_W / 7) && MousePosition.Y > P_Y + P_H - (P_H / 6))
+
+
+                if ((Math.Abs((P_X + P_W / 7) - MousePosition.X)) < P_W / 3 && Math.Abs((P_Y + P_H - (P_H / 6)) - MousePosition.Y) < (P_H / 4) && MousePosition.X > (P_X + P_W / 7) && MousePosition.Y > P_Y + P_H - (P_H / 6))
                 {
                     mouse_over_rst = true;
                     mouse_over_ext = false;
@@ -2527,21 +2789,22 @@ namespace ZombieSlayer
                 {
                     mouse_over_ext = true;
                     mouse_over_rst = false;
-              
+
                 }
                 else
                 {
                     mouse_over_rst = false;
                     mouse_over_ext = false;
-                 
+
                 }
             }
-            Invalidate(); }
+            Invalidate();
+        }
 
        
     }
    
-        }
+}
         
     
 
